@@ -22,6 +22,9 @@ The Student Leave Request and Approval App allows students to submit leave reque
 * Android Studio
 * Kotlin
 * XML
+* HTML
+* CSS
+* Javascript
 * Backend/API integration
 
  Objective
