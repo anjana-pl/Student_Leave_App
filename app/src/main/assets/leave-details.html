@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leave Request Details - College Portal</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header-bar">
+    <div class="header-container">
+      <div class="brand-section">
+        <div class="college-logo-badge">📄</div>
+        <div>
+          <div class="brand-title">Leave Request Record</div>
+          <div class="brand-subtitle">Status & Verification Trail</div>
+        </div>
+      </div>
+      <div class="header-actions" id="header-user-info">
+        <!-- Injected via Auth.js -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Bar -->
+  <div class="demo-role-banner">
+    <div><a href="student.html" style="color: #ffffff; text-decoration: none; font-weight: 600;">← Back to Student Dashboard</a></div>
+    <div>
+      <a id="parent-portal-link" href="parent.html" class="btn-demo" style="background-color: #805ad5; text-decoration: none;">
+        👨‍👩‍👧 Open Parent Acknowledgement Portal for this Request
+      </a>
+    </div>
+  </div>
+
+  <main class="main-container" style="max-width: 860px;" id="details-container">
+
+    <!-- Summary Header Card -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Request Reference</span>
+          <h2 id="detail-request-id" style="font-size: 22px; color: var(--primary); font-weight: 700;">Loading...</h2>
+        </div>
+        <div id="detail-faculty-status">
+          <!-- Status Badge -->
+        </div>
+      </div>
+
+      <!-- Step Progression Timeline -->
+      <div class="leave-timeline">
+        <div class="timeline-step" id="timeline-step-1">
+          <div class="timeline-marker">1</div>
+          <div class="timeline-label">Submitted</div>
+          <div class="timeline-subtext">Student Applied</div>
+        </div>
+        <div class="timeline-step" id="timeline-step-2">
+          <div class="timeline-marker">2</div>
+          <div class="timeline-label">Parent Aware</div>
+          <div class="timeline-subtext">OTP Acknowledged</div>
+        </div>
+        <div class="timeline-step" id="timeline-step-3">
+          <div class="timeline-marker">3</div>
+          <div class="timeline-label">Advisor Review</div>
+          <div class="timeline-subtext">History Evaluated</div>
+        </div>
+        <div class="timeline-step" id="timeline-step-4">
+          <div class="timeline-marker">4</div>
+          <div class="timeline-label">Decision</div>
+          <div class="timeline-subtext">Approved / Rejected</div>
+        </div>
+      </div>
+
+      <!-- Detail Grids -->
+      <div class="form-grid-2" style="margin-top: 24px;">
+        <div>
+          <table class="table" style="border: none;">
+            <tr>
+              <td style="color: var(--text-muted); width: 140px; border: none; padding: 6px 0;">Leave Type:</td>
+              <td style="font-weight: 600; border: none; padding: 6px 0;" id="detail-type">-</td>
+            </tr>
+            <tr>
+              <td style="color: var(--text-muted); border: none; padding: 6px 0;">Duration Dates:</td>
+              <td style="font-weight: 600; border: none; padding: 6px 0;" id="detail-dates">-</td>
+            </tr>
+            <tr>
+              <td style="color: var(--text-muted); border: none; padding: 6px 0;">Total Calendar Days:</td>
+              <td style="font-weight: 600; border: none; padding: 6px 0;" id="detail-days">-</td>
+            </tr>
+            <tr>
+              <td style="color: var(--text-muted); border: none; padding: 6px 0;">Departure Time:</td>
+              <td style="font-weight: 600; border: none; padding: 6px 0;" id="detail-time">-</td>
+            </tr>
+          </table>
+        </div>
+
+        <div>
+          <table class="table" style="border: none;">
+            <tr>
+              <td style="color: var(--text-muted); width: 140px; border: none; padding: 6px 0;">Submitted On:</td>
+              <td style="font-weight: 600; border: none; padding: 6px 0;" id="detail-submitted-at">-</td>
+            </tr>
+            <tr>
+              <td style="color: var(--text-muted); border: none; padding: 6px 0;">Parent Status:</td>
+              <td style="border: none; padding: 6px 0;" id="detail-parent-status">-</td>
+            </tr>
+            <tr>
+              <td style="color: var(--text-muted); border: none; padding: 6px 0;">Document Attached:</td>
+              <td style="font-weight: 600; border: none; padding: 6px 0;" id="detail-document">-</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Stated Reason -->
+      <div style="margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+        <strong style="font-size: 13px; color: var(--text-secondary);">Student Stated Reason:</strong>
+        <div id="detail-reason" style="margin-top: 6px; padding: 12px; background-color: var(--bg-subtle); border-radius: var(--radius-md); font-size: 14px; color: var(--text-primary);">
+          -
+        </div>
+      </div>
+
+      <!-- Faculty Remarks -->
+      <div style="margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+        <strong style="font-size: 13px; color: var(--text-secondary);">Class Advisor / Faculty Remarks:</strong>
+        <div id="detail-faculty-remark" style="margin-top: 6px; padding: 12px; background-color: #f7fafc; border-left: 4px solid var(--accent-blue); border-radius: 0 var(--radius-md) var(--radius-md) 0; font-size: 14px;">
+          -
+        </div>
+      </div>
+
+      <div style="margin-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <a href="student.html" class="btn btn-secondary">← Back to Dashboard</a>
+        <button class="btn btn-outline" onclick="window.print()">🖨️ Print Leave Slip</button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/leave.js"></script>
+</body>
+</html>

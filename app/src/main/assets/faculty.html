@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Faculty Dashboard - Class Advisor Portal</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header-bar">
+    <div class="header-container">
+      <div class="brand-section">
+        <div class="college-logo-badge">👨‍🏫</div>
+        <div>
+          <div class="brand-title">Faculty Portal • Class Advisor Desk</div>
+          <div class="brand-subtitle">Student Leave Evaluation & Academic Oversight</div>
+        </div>
+      </div>
+      <div class="header-actions" id="header-user-info">
+        <!-- Injected via Auth.js -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Demo Role Switcher -->
+  <div class="demo-role-banner">
+    <div><strong>Demo Testing Bar:</strong> Switch user views</div>
+    <div class="role-buttons">
+      <button class="btn-demo" onclick="Auth.quickLogin('student')">👨‍🎓 Switch to Student View</button>
+      <button class="btn-demo" onclick="Auth.quickLogin('admin')">🏛️ Switch to Admin View</button>
+      <a href="parent.html?id=LR1024" class="btn-demo" style="text-decoration: none;">👨‍👩‍👧 Parent OTP Portal</a>
+    </div>
+  </div>
+
+  <main class="main-container">
+    
+    <!-- Welcome Card -->
+    <div class="card" style="background: linear-gradient(135deg, #ffffff 0%, #edf2f7 100%);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h2 id="faculty-welcome" style="font-size: 19px; color: var(--primary); font-weight: 700;">Loading advisor profile...</h2>
+          <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">
+            Assigned Classes: <strong>Computer Science & Engineering (Year 3 - Sections A & B)</strong>
+          </div>
+        </div>
+        <div>
+          <span class="badge badge-approved" style="padding: 6px 12px; font-size: 12px;">Academic Term 2024–2025</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics Cards -->
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-label">Total Assigned</div>
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-helper">All requests from my classes</div>
+      </div>
+
+      <div class="stat-box pending">
+        <div class="stat-label">Pending Review</div>
+        <div class="stat-value" id="stat-pending">0</div>
+        <div class="stat-helper">Requiring faculty action</div>
+      </div>
+
+      <div class="stat-box parent-wait">
+        <div class="stat-label">Parent Pending</div>
+        <div class="stat-value" id="stat-parent-pending">0</div>
+        <div class="stat-helper">Awaiting parent confirmation</div>
+      </div>
+
+      <div class="stat-box approved">
+        <div class="stat-label">Approved</div>
+        <div class="stat-value" id="stat-approved">0</div>
+        <div class="stat-helper">Leave sanctioned</div>
+      </div>
+
+      <div class="stat-box rejected">
+        <div class="stat-label">Rejected</div>
+        <div class="stat-value" id="stat-rejected">0</div>
+        <div class="stat-helper">Declined with remark</div>
+      </div>
+    </div>
+
+    <!-- Requests Table with Interactive Filters -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📋 Student Leave Requests</div>
+        
+        <!-- Filter Controls -->
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <input 
+            type="text" 
+            id="filter-search" 
+            class="form-control" 
+            placeholder="Search by student name or roll ID..." 
+            style="width: 220px; padding: 6px 10px; font-size: 12px;"
+          >
+
+          <select id="filter-status" class="form-control" style="width: 140px; padding: 6px 10px; font-size: 12px;">
+            <option value="all">All Decisions</option>
+            <option value="Pending" selected>Pending Only</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+
+          <select id="filter-parent-status" class="form-control" style="width: 160px; padding: 6px 10px; font-size: 12px;">
+            <option value="all">All Parent Status</option>
+            <option value="Acknowledged">Parent Acknowledged</option>
+            <option value="Waiting for Acknowledgement">Waiting for Parent</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Student Name</th>
+              <th>Class</th>
+              <th>Leave Type</th>
+              <th>Duration Dates</th>
+              <th>Days</th>
+              <th>Parent Status</th>
+              <th>Decision</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="faculty-requests-tbody">
+            <!-- Rendered by faculty.js -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Interactive Faculty Review Modal -->
+  <div id="review-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Evaluate Leave Request: <span id="modal-request-id" style="color: var(--accent-blue);"></span></div>
+        <button class="modal-close" onclick="FacultyDashboard.closeReviewModal()">&times;</button>
+      </div>
+
+      <!-- Student & Request Details -->
+      <div style="margin-bottom: 16px;">
+        <div class="form-grid-2" style="background-color: var(--bg-subtle); padding: 12px; border-radius: var(--radius-md);">
+          <div>
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Student</div>
+            <div id="modal-student-name" style="font-weight: 700; font-size: 15px; color: var(--text-primary);">-</div>
+            <div id="modal-student-id" style="font-size: 12px; color: var(--text-secondary);">-</div>
+            <div id="modal-student-class" style="font-size: 12px; color: var(--text-secondary);">-</div>
+          </div>
+          <div>
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Leave Terms</div>
+            <div id="modal-leave-type" style="font-weight: 700; font-size: 15px; color: var(--accent-blue);">-</div>
+            <div id="modal-dates" style="font-size: 12px; color: var(--text-secondary);">-</div>
+            <div id="modal-parent-status" style="margin-top: 4px;">-</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reason & Attachment -->
+      <div style="margin-bottom: 16px;">
+        <label class="form-label">Stated Reason:</label>
+        <div id="modal-reason" style="padding: 10px; background-color: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: 13px;">-</div>
+        <div id="modal-document" style="font-size: 12px; margin-top: 6px;"></div>
+      </div>
+
+      <!-- Student's Prior Leave History in College (Requirement) -->
+      <div style="margin-bottom: 16px;">
+        <label class="form-label">Student's Prior Leave History (For Advisor Review):</label>
+        <div id="modal-leave-history" style="max-height: 120px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-md); background-color: var(--bg-card);">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Reviewer Remark (Mandatory on rejection) -->
+      <div class="form-group">
+        <label class="form-label required" for="modal-remark">
+          Faculty Decision Remarks / Instructions:
+        </label>
+        <textarea 
+          id="modal-remark" 
+          class="form-control" 
+          rows="2" 
+          placeholder="Enter remarks (MANDATORY if rejecting; recommended if approving)..."
+        ></textarea>
+        <div class="form-help" style="color: var(--warning);">Note: College rules strictly require a remark if a leave is rejected.</div>
+      </div>
+
+      <!-- Modal Action Buttons -->
+      <div id="modal-actions" class="modal-footer">
+        <!-- Injected dynamically based on request status -->
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/faculty.js"></script>
+</body>
+</html>

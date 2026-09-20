@@ -1,0 +1,2009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CampusEase - Smart Student Leave & Outpass Portal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Clean custom styling enhancements */
+    .role-navbar {
+      background: #152c4d;
+      padding: 8px 16px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      border-bottom: 2px solid #2b6cb0;
+      position: sticky;
+      top: 56px;
+      z-index: 90;
+    }
+
+    .role-nav-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .role-nav-item:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+    }
+
+    .role-nav-item.active {
+      background: #ffffff;
+      color: var(--primary);
+      border-color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    }
+
+    .sub-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .sub-tab-btn {
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .sub-tab-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    /* Modal Backdrop */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-content-card {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 640px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-head {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-subtle);
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .modal-foot {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      background: #ffffff;
+    }
+
+    /* History audit timeline item */
+    .history-audit-item {
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      margin-bottom: 8px;
+      background: #ffffff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .attendance-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .att-good {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .att-warning {
+      background: var(--warning-bg);
+      color: var(--warning);
+    }
+
+    .att-danger {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .action-badge-btn {
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+      cursor: pointer;
+    }
+
+    .action-badge-btn:hover {
+      background: var(--bg-subtle);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Main System Header -->
+  <header class="header-bar">
+    <div class="header-container" style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="brand-section">
+        <div class="college-logo-badge">
+          <img src="img/campusease_logo.jpg" alt="CampusEase Logo" class="college-logo-img">
+        </div>
+        <div>
+          <div class="brand-title">CampusEase</div>
+          <div class="brand-subtitle">Smart Leave & Outpass Portal • Student • Faculty Advisor • Admin</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 4-Pillar Role Navigation Bar -->
+  <div class="role-navbar">
+    <button class="role-nav-item active" id="btn-role-student" onclick="System.switchRole('student')">
+      <span>👨‍🎓</span> Student Portal
+    </button>
+    <button class="role-nav-item" id="btn-role-faculty" onclick="System.switchRole('faculty')">
+      <span>👨‍🏫</span> Faculty Advisor Desk
+      <span class="badge badge-pending" id="badge-faculty-pending-count" style="margin-left: 4px; padding: 2px 6px; font-size: 10px;">0</span>
+    </button>
+    <button class="role-nav-item" id="btn-role-admin" onclick="System.switchRole('admin')">
+      <span>⚙️</span> Admin & Policy Governance
+    </button>
+    <button class="role-nav-item" id="btn-role-parent" onclick="System.switchRole('parent')">
+      <span>👨‍👩‍👧</span> Parent Verification (OTP)
+    </button>
+  </div>
+
+  <main class="main-container" style="padding-top: 16px;">
+
+    <!-- System Notification Banner -->
+    <div id="system-alert-box" class="alert" style="display: none;"></div>
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 1: STUDENT PORTAL                                                 -->
+    <!-- ========================================================================= -->
+    <div id="role-section-student">
+      
+      <div class="sub-tabs">
+        <button class="sub-tab-btn active" id="btn-student-apply" onclick="System.switchStudentSubTab('apply')">
+          📝 Apply Leave
+        </button>
+        <button class="sub-tab-btn" id="btn-student-myleaves" onclick="System.switchStudentSubTab('myleaves')">
+          📋 My Applications & Status (<span id="count-student-myleaves">0</span>)
+        </button>
+      </div>
+
+      <!-- Student View 1: Apply Leave Form -->
+      <div id="student-sub-apply">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📝 Student Leave Application Form</div>
+            <div style="font-size: 12px; color: var(--text-muted);">
+              Current Policy: <strong id="student-policy-notice-label">Min 12 hrs advance notice</strong>
+            </div>
+          </div>
+
+          <form id="student-apply-form" onsubmit="System.handleStudentSubmit(event)">
+            
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label required" for="s-name">Student Full Name</label>
+                <input type="text" id="s-name" class="form-control" placeholder="Enter your full name" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label required" for="s-roll">Roll Number / Registration No.</label>
+                <input type="text" id="s-roll" class="form-control" placeholder="e.g. 21CS101" required>
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label required" for="s-dept">Department</label>
+                <select id="s-dept" class="form-control" required>
+                  <option value="Computer Science & Engineering">Computer Science & Engineering</option>
+                  <option value="Information Technology">Information Technology</option>
+                  <option value="Electronics & Communication">Electronics & Communication</option>
+                  <option value="Mechanical Engineering">Mechanical Engineering</option>
+                  <option value="Civil Engineering">Civil Engineering</option>
+                  <option value="Electrical & Electronics">Electrical & Electronics</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label required" for="s-year">Year & Section</label>
+                <select id="s-year" class="form-control" required>
+                  <option value="3rd Year - Sec A">3rd Year - Sec A</option>
+                  <option value="3rd Year - Sec B">3rd Year - Sec B</option>
+                  <option value="1st Year - Sec A">1st Year - Sec A</option>
+                  <option value="1st Year - Sec B">1st Year - Sec B</option>
+                  <option value="2nd Year - Sec A">2nd Year - Sec A</option>
+                  <option value="2nd Year - Sec B">2nd Year - Sec B</option>
+                  <option value="Final Year - Sec A">Final Year - Sec A</option>
+                  <option value="Final Year - Sec B">Final Year - Sec B</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label required" for="s-leavetype">Leave Category</label>
+                <select id="s-leavetype" class="form-control" required onchange="System.checkEmergencyPolicyNotice()">
+                  <option value="Casual Leave">Casual Leave (Normal)</option>
+                  <option value="Sick / Medical Leave">Sick / Medical Leave</option>
+                  <option value="Emergency Leave">Emergency Leave (Exempt from Advance Notice)</option>
+                  <option value="Family Function">Family Function</option>
+                  <option value="On Duty (OD) / Symposium">On Duty (OD) / Symposium</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label required" for="s-parentphone">Parent / Guardian Mobile No.</label>
+                <input type="tel" id="s-parentphone" class="form-control" placeholder="10-digit mobile number" pattern="[0-9]{10}" required>
+                <div class="form-help">Verification OTP and status notifications will be routed here.</div>
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label required" for="s-startdate">From Date</label>
+                <input type="date" id="s-startdate" class="form-control" required onchange="System.updateDaysCalculation()">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label required" for="s-enddate">To Date</label>
+                <input type="date" id="s-enddate" class="form-control" required onchange="System.updateDaysCalculation()">
+              </div>
+            </div>
+
+            <div id="student-duration-bar" style="display: none; padding: 10px 14px; border-radius: var(--radius-md); font-size: 13px; font-weight: 600; margin-bottom: 14px;">
+              Duration: <span id="student-duration-text">-</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label required" for="s-reason">Reason for Leave</label>
+              <textarea id="s-reason" class="form-control" placeholder="Describe the reason for leave in detail..." required></textarea>
+            </div>
+
+            <!-- Supporting Documents Upload Field -->
+            <div class="form-group">
+              <label class="form-label" for="s-doc-file">
+                📎 Supporting Document (Medical Certificate / On-Duty Letter / Event Proof)
+              </label>
+              <div class="doc-upload-zone" onclick="document.getElementById('s-doc-file').click()">
+                <input type="file" id="s-doc-file" class="doc-file-input" accept="image/*,.pdf,.doc,.docx" onchange="System.handleDocSelect(event)">
+                <span class="doc-upload-icon">📂</span>
+                <div style="font-weight: 600; font-size: 13px; color: var(--text-primary);">Click or tap to attach document</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Supports Medical Slips, OD Approval Letters, Images (JPG, PNG, PDF)</div>
+              </div>
+              <div id="s-doc-preview-wrapper" style="display: none;">
+                <div class="doc-preview-container">
+                  <div class="doc-info">
+                    <img id="s-doc-preview-thumb" class="doc-thumb" src="" alt="Document Preview" style="display: none;">
+                    <span id="s-doc-file-icon" style="font-size: 24px; display: none;">📄</span>
+                    <div>
+                      <div id="s-doc-file-name" style="font-size: 13px; font-weight: 600; color: var(--text-primary);">certificate.pdf</div>
+                      <div id="s-doc-file-size" style="font-size: 11px; color: var(--text-muted);">Uploaded document</div>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-danger" onclick="System.clearSelectedDoc()">✕ Remove</button>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top: 18px;">
+              <button type="submit" class="btn btn-primary" style="padding: 12px 24px; font-size: 15px;">
+                🚀 Submit Leave Application
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- Student View 2: My Applications -->
+      <div id="student-sub-myleaves" style="display: none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📋 My Leave Applications</div>
+            <button class="btn btn-sm btn-secondary" onclick="System.renderStudentLeaves()">🔄 Refresh List</button>
+          </div>
+
+          <div id="student-leaves-list">
+            <!-- Dynamic leave cards -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 2: FACULTY / CLASS ADVISOR DESK (INNOVATIVE FEATURES)             -->
+    <!-- ========================================================================= -->
+    <div id="role-section-faculty" style="display: none;">
+      
+      <!-- Class Advisor Overview & Metrics -->
+      <div class="card" style="background: linear-gradient(135deg, #ffffff 0%, #edf2f7 100%);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <h2 style="font-size: 18px; color: var(--primary); font-weight: 700;">👨‍🏫 Faculty Class Advisor Evaluation Desk</h2>
+            <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">
+              Assigned Mentorship: <strong>Computer Science & Engineering (All Sections)</strong>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-sm btn-primary" onclick="System.openQuickTestLeave()">+ Add Student Test Case</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Metrics Grid -->
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-label">Total Assigned</div>
+          <div class="stat-value" id="f-stat-total">0</div>
+          <div class="stat-helper">All department requests</div>
+        </div>
+
+        <div class="stat-box pending">
+          <div class="stat-label">Pending Decision</div>
+          <div class="stat-value" id="f-stat-pending">0</div>
+          <div class="stat-helper">Requires your review</div>
+        </div>
+
+        <div class="stat-box parent-wait">
+          <div class="stat-label">Parent Pending</div>
+          <div class="stat-value" id="f-stat-parent-wait">0</div>
+          <div class="stat-helper">Awaiting parent OTP</div>
+        </div>
+
+        <div class="stat-box approved">
+          <div class="stat-label">Approved / Sanctioned</div>
+          <div class="stat-value" id="f-stat-approved">0</div>
+          <div class="stat-helper">Leaves approved</div>
+        </div>
+
+        <div class="stat-box rejected">
+          <div class="stat-label">Rejected</div>
+          <div class="stat-value" id="f-stat-rejected">0</div>
+          <div class="stat-helper">Declined with remarks</div>
+        </div>
+      </div>
+
+      <!-- Filter Controls & Search -->
+      <div class="card">
+        <div class="card-header" style="flex-wrap: wrap; gap: 10px;">
+          <div class="card-title">🔍 Pending Class Leave Queue</div>
+
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <input 
+              type="text" 
+              id="faculty-search-input" 
+              class="form-control" 
+              placeholder="Search by student name or roll..." 
+              style="width: 200px; padding: 6px 10px; font-size: 12px;"
+              oninput="System.renderFacultyTable()"
+            >
+            <select 
+              id="faculty-filter-status" 
+              class="form-control" 
+              style="width: 170px; padding: 6px 10px; font-size: 12px;"
+              onchange="System.renderFacultyTable()"
+            >
+              <option value="ALL">All Statuses</option>
+              <option value="Pending" selected>Pending Decisions</option>
+              <option value="ParentPending">Waiting Parent Ack</option>
+              <option value="Approved">Approved Only</option>
+              <option value="Rejected">Rejected Only</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Faculty Requests Table -->
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Request ID</th>
+                <th>Student & Roll</th>
+                <th>Class & Dept</th>
+                <th>Dates & Days</th>
+                <th>Category</th>
+                <th>Parent Verification</th>
+                <th>Status</th>
+                <th style="text-align: right;">Innovative Actions</th>
+              </tr>
+            </thead>
+            <tbody id="faculty-requests-tbody">
+              <!-- Dynamically rendered -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 3: ADMIN & POLICY GOVERNANCE (INNOVATIVE FEATURES)                -->
+    <!-- ========================================================================= -->
+    <div id="role-section-admin" style="display: none;">
+      
+      <!-- Admin Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-label">Total Students</div>
+          <div class="stat-value" id="a-stat-students">120</div>
+          <div class="stat-helper">Institutional roster</div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-label">Faculty Mentors</div>
+          <div class="stat-value" id="a-stat-faculty">8</div>
+          <div class="stat-helper">Class advisors</div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-label">All Leave Applications</div>
+          <div class="stat-value" id="a-stat-leaves">0</div>
+          <div class="stat-helper">Across all departments</div>
+        </div>
+
+        <div class="stat-box approved">
+          <div class="stat-label">Parent Compliance</div>
+          <div class="stat-value" id="a-stat-parent-rate">100%</div>
+          <div class="stat-helper">OTP verification rate</div>
+        </div>
+      </div>
+
+      <!-- Admin Sub Tabs -->
+      <div class="sub-tabs">
+        <button class="sub-tab-btn active" id="btn-admin-policy" onclick="System.switchAdminSubTab('policy')">
+          ⚙️ Leave Policy Configuration (Rules Engine)
+        </button>
+        <button class="sub-tab-btn" id="btn-admin-roster" onclick="System.switchAdminSubTab('roster')">
+          👥 Student Directory & Attendance Roster
+        </button>
+        <button class="sub-tab-btn" id="btn-admin-faculty" onclick="System.switchAdminSubTab('faculty')">
+          👨‍🏫 Faculty Class Assignments
+        </button>
+        <button class="sub-tab-btn" id="btn-admin-allleaves" onclick="System.switchAdminSubTab('allleaves')">
+          📑 College Master Leave Log
+        </button>
+      </div>
+
+      <!-- Admin Sub Tab 1: Leave Policy Configuration Rules Engine -->
+      <div id="admin-sub-policy">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">⚙️ Institutional Leave Governance & Rules Policy</div>
+            <span style="font-size: 12px; color: var(--text-muted);">Enforced automatically across all submissions</span>
+          </div>
+
+          <form onsubmit="System.saveAdminPolicy(event)">
+            
+            <div class="form-group" style="max-width: 500px;">
+              <label class="form-label required" for="adm-advance-hours">
+                Minimum Advance Notice for Leave Submission (Hours)
+              </label>
+              <input type="number" id="adm-advance-hours" class="form-control" min="1" max="168" value="12" required>
+              <div class="form-help">
+                Normal leaves submitted less than this many hours before departure will be automatically rejected.
+              </div>
+              <div style="display: flex; gap: 6px; margin-top: 6px;">
+                <button type="button" class="btn btn-sm btn-secondary" onclick="document.getElementById('adm-advance-hours').value = 6">6 Hours</button>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="document.getElementById('adm-advance-hours').value = 12">12 Hours (Default)</button>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="document.getElementById('adm-advance-hours').value = 24">24 Hours (Strict)</button>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 18px;">
+              <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <input type="checkbox" id="adm-allow-emergency" checked style="width: 18px; height: 18px;">
+                <div>
+                  <strong style="font-size: 14px;">Allow Emergency Leave Exemption</strong>
+                  <div style="font-size: 12px; color: var(--text-muted);">
+                    When enabled, students selecting "Emergency Leave" or "Sick / Medical Leave" can bypass the advance notice deadline.
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            <div class="form-grid-2" style="max-width: 600px; margin-top: 14px;">
+              <div class="form-group">
+                <label class="form-label required" for="adm-max-days">Max Consecutive Leave Days</label>
+                <input type="number" id="adm-max-days" class="form-control" min="1" max="30" value="5" required>
+                <div class="form-help">Longer leaves require special Dean approval.</div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label required" for="adm-max-monthly">Max Leaves Allowed Per Month</label>
+                <input type="number" id="adm-max-monthly" class="form-control" min="1" max="10" value="3" required>
+                <div class="form-help">Alerts advisor if student exceeds threshold.</div>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 14px;">
+              <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <input type="checkbox" id="adm-require-parent-otp" checked style="width: 18px; height: 18px;">
+                <div>
+                  <strong style="font-size: 14px;">Mandatory Two-Stage Parent OTP Verification</strong>
+                  <div style="font-size: 12px; color: var(--text-muted);">
+                    Enforces parent acknowledgement before faculty can sanction leave.
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            <div style="margin-top: 20px;">
+              <button type="submit" class="btn btn-primary">
+                💾 Save & Apply Policy to Entire College
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- Admin Sub Tab 2: Student Directory & Attendance Roster -->
+      <div id="admin-sub-roster" style="display: none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">👥 Student Roster & Attendance Monitoring</div>
+            <button class="btn btn-sm btn-primary" onclick="System.openAddStudentModal()">+ Add New Student</button>
+          </div>
+
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Roll No</th>
+                  <th>Full Name</th>
+                  <th>Department & Year</th>
+                  <th>Attendance %</th>
+                  <th>Parent Contact</th>
+                  <th>Account Status</th>
+                  <th style="text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="admin-students-tbody">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Sub Tab 3: Faculty Class Assignments -->
+      <div id="admin-sub-faculty" style="display: none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">👨‍🏫 Class Advisor Mentorship Assignments</div>
+          </div>
+
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Advisor ID</th>
+                  <th>Faculty Name</th>
+                  <th>Designation</th>
+                  <th>Department</th>
+                  <th>Assigned Classes</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="admin-faculty-tbody">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Sub Tab 4: College Master Leave Log -->
+      <div id="admin-sub-allleaves" style="display: none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📑 Comprehensive College Master Leave Log</div>
+            <button class="btn btn-sm btn-secondary" onclick="System.renderAdminAllLeaves()">🔄 Refresh</button>
+          </div>
+
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Req ID</th>
+                  <th>Student</th>
+                  <th>Roll No</th>
+                  <th>Department</th>
+                  <th>Dates</th>
+                  <th>Category</th>
+                  <th>Status</th>
+                  <th>Advisor Remarks</th>
+                </tr>
+              </thead>
+              <tbody id="admin-all-leaves-tbody">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 4: PARENT VERIFICATION PORTAL (OTP)                              -->
+    <!-- ========================================================================= -->
+    <div id="role-section-parent" style="display: none;">
+      <div class="card" style="max-width: 720px; margin: 0 auto;">
+        <div class="card-header">
+          <div>
+            <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Parent / Guardian Portal</div>
+            <div class="card-title" style="margin-top: 2px;">📲 Ward Leave Acknowledgement & Consent</div>
+          </div>
+          <span class="badge badge-parent-ack" style="font-size: 11px;">Parent Security Gate</span>
+        </div>
+
+        <!-- Quick Request Selector -->
+        <div style="margin-bottom: 16px;">
+          <label class="form-label" for="parent-select-request">Select Leave Request to Verify:</label>
+          <select id="parent-select-request" class="form-control" onchange="System.loadParentSelectedRequest()">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+
+        <div id="parent-request-display" style="display: none;">
+          <div style="background: var(--bg-subtle); padding: 14px; border-radius: var(--radius-md); margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>
+                <span class="badge badge-info" id="p-card-id" style="font-size: 13px; font-weight: 700;">-</span>
+                <h3 id="p-card-name" style="font-size: 17px; font-weight: 700; color: var(--text-primary); margin-top: 6px;">-</h3>
+                <div id="p-card-class" style="font-size: 13px; color: var(--text-secondary);">-</div>
+              </div>
+              <div id="p-card-badge"></div>
+            </div>
+            
+            <div style="margin-top: 12px; font-size: 13px; border-top: 1px solid var(--border-color); padding-top: 8px;">
+              <div><strong>Dates:</strong> <span id="p-card-dates">-</span> (<span id="p-card-days">-</span> days)</div>
+              <div><strong>Category:</strong> <span id="p-card-type">-</span></div>
+              <div style="margin-top: 6px;"><strong>Ward's Stated Reason:</strong> <span id="p-card-reason" style="font-style: italic;">-</span></div>
+              <div id="p-card-doc-wrapper" style="margin-top: 8px; display: none;">
+                <strong>Attached Document:</strong> <span id="p-card-doc"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- OTP Input Form -->
+          <div id="parent-otp-form-box" style="border: 2px dashed var(--accent-blue); padding: 18px; border-radius: var(--radius-md); background: #f0f7ff;">
+            <div style="font-weight: 700; color: var(--primary); margin-bottom: 4px;">Enter Parent Verification Code</div>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+              An SMS One-Time Password has been dispatched to your mobile number. Enter the code below to record your official consent.
+            </p>
+
+            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+              <input type="text" id="p-otp-input" class="form-control" placeholder="123456" maxlength="6" style="width: 140px; font-size: 18px; font-weight: 700; letter-spacing: 3px; text-align: center;">
+              <button class="btn btn-sm btn-secondary" onclick="document.getElementById('p-otp-input').value = '123456'">Demo Code: 123456</button>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="p-parent-remark">Optional Parent Remark to Faculty:</label>
+              <input type="text" id="p-parent-remark" class="form-control" placeholder="e.g. Yes, confirmed. He is travelling home.">
+            </div>
+
+            <button class="btn btn-success" style="padding: 10px 20px; font-weight: 700;" onclick="System.submitParentVerification()">
+              ✓ Confirm Parent Acknowledgement & Forward to Advisor
+            </button>
+          </div>
+
+          <div id="parent-already-verified-box" class="alert alert-success" style="display: none; margin-top: 14px;">
+            <strong>✓ Parent Verification Completed:</strong> You have acknowledged this leave request. The Class Advisor has been notified for final decision.
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- INNOVATIVE FEATURE: FACULTY STUDENT HISTORY & ATTENDANCE AUDIT MODAL      -->
+  <!-- ========================================================================= -->
+  <div class="modal-overlay" id="audit-history-modal">
+    <div class="modal-content-card">
+      <div class="modal-head">
+        <div>
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Faculty Oversight & Audit</div>
+          <div style="font-size: 17px; font-weight: 700; color: var(--primary);" id="audit-modal-student-name">Student History Dossier</div>
+        </div>
+        <button class="btn btn-sm btn-secondary" onclick="System.closeAuditModal()">✕ Close</button>
+      </div>
+
+      <div class="modal-body">
+        
+        <!-- Attendance & Risk Banner -->
+        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-subtle); padding: 14px; border-radius: var(--radius-md); margin-bottom: 16px;">
+          <div>
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">OVERALL ATTENDANCE</div>
+            <div style="font-size: 22px; font-weight: 800; color: var(--primary);" id="audit-attendance-val">84%</div>
+            <div id="audit-attendance-status" style="font-size: 12px; font-weight: 600; color: var(--success);">In Safe Standing (>75%)</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">SEMESTER LEAVES</div>
+            <div style="font-size: 20px; font-weight: 700; color: var(--text-primary);" id="audit-leaves-count">2 Leaves (4 Days)</div>
+            <div style="font-size: 12px; color: var(--text-secondary);">Monthly Cap: 3 Days</div>
+          </div>
+        </div>
+
+        <!-- Current Requested Leave Particulars -->
+        <div style="margin-bottom: 18px; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px;">
+          <div style="font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">
+            Current Leave Under Review (<span id="audit-req-id">LEV-101</span>)
+          </div>
+          <div style="font-size: 13px; margin-bottom: 4px;">
+            <strong>Period:</strong> <span id="audit-req-dates">-</span> | <strong>Duration:</strong> <span id="audit-req-days">-</span> days
+          </div>
+          <div style="font-size: 13px; margin-bottom: 4px;">
+            <strong>Category:</strong> <span id="audit-req-category">-</span>
+          </div>
+          <div style="font-size: 13px; margin-bottom: 4px;">
+            <strong>Stated Reason:</strong> <span id="audit-req-reason" style="font-style: italic;">-</span>
+          </div>
+          <div style="font-size: 13px; margin-top: 8px; display: flex; align-items: center; gap: 8px;">
+            <strong>Parent Verification:</strong> <span id="audit-parent-status">-</span>
+          </div>
+          <div style="font-size: 13px; margin-top: 8px; display: flex; align-items: center; gap: 8px;">
+            <strong>Attached Document:</strong> <span id="audit-req-doc">-</span>
+          </div>
+        </div>
+
+        <!-- Prior Attendance & Leave Audit History (Innovative Pattern Tracking) -->
+        <div>
+          <div style="font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; display: flex; justify-content: space-between;">
+            <span>Prior Leave History in Current Term</span>
+            <span style="font-size: 11px; color: var(--text-muted); font-weight: 400;">Pattern Absenteeism Check</span>
+          </div>
+
+          <div id="audit-past-history-container">
+            <!-- Dynamic past leave history items -->
+          </div>
+        </div>
+
+        <!-- Decision Box -->
+        <div style="margin-top: 20px; background: #faf5ff; border: 1px solid #e9d8fd; padding: 14px; border-radius: var(--radius-md);">
+          <div style="font-weight: 700; font-size: 14px; color: #553c9e; margin-bottom: 6px;">Advisor Action & Remarks:</div>
+          <input type="text" id="audit-decision-remark" class="form-control" placeholder="Enter reason / sanction instruction (Mandatory for rejection)...">
+        </div>
+
+      </div>
+
+      <div class="modal-foot">
+        <button class="btn btn-outline" onclick="System.closeAuditModal()">Cancel</button>
+        <button class="btn btn-danger" onclick="System.handleAuditReject()">✕ Reject Leave</button>
+        <button class="btn btn-success" onclick="System.handleAuditApprove()">✓ Sanction / Approve</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add Student -->
+  <div class="modal-overlay" id="add-student-modal">
+    <div class="modal-content-card" style="max-width: 480px;">
+      <div class="modal-head">
+        <div style="font-weight: 700; font-size: 16px;">Add Student to Directory</div>
+        <button class="btn btn-sm btn-secondary" onclick="System.closeAddStudentModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="add-student-form" onsubmit="System.saveNewStudent(event)">
+          <div class="form-group">
+            <label class="form-label required" for="new-s-name">Student Full Name</label>
+            <input type="text" id="new-s-name" class="form-control" placeholder="e.g. Ananya Rao" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label required" for="new-s-roll">Roll Number</label>
+            <input type="text" id="new-s-roll" class="form-control" placeholder="e.g. 21CS105" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label required" for="new-s-dept">Department</label>
+            <select id="new-s-dept" class="form-control" required>
+              <option value="Computer Science & Engineering">Computer Science & Engineering</option>
+              <option value="Information Technology">Information Technology</option>
+              <option value="Electronics & Communication">Electronics & Communication</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label required" for="new-s-att">Current Attendance %</label>
+            <input type="number" id="new-s-att" class="form-control" min="0" max="100" value="85" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label required" for="new-s-phone">Parent Mobile Number</label>
+            <input type="tel" id="new-s-phone" class="form-control" placeholder="9876543210" pattern="[0-9]{10}" required>
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+            <button type="button" class="btn btn-outline" onclick="System.closeAddStudentModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Student</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: View Supporting Document -->
+  <div class="modal-overlay" id="doc-viewer-modal">
+    <div class="modal-content-card" style="max-width: 520px;">
+      <div class="modal-head">
+        <div style="font-weight: 700; font-size: 16px;" id="doc-viewer-title">📎 Supporting Document</div>
+        <button class="btn btn-sm btn-secondary" onclick="System.closeDocViewerModal()">✕</button>
+      </div>
+      <div class="modal-body" style="text-align: center; padding: 20px;">
+        <div id="doc-viewer-img-container" style="display: none;">
+          <img id="doc-viewer-img" src="" alt="Supporting Document" style="max-width: 100%; max-height: 420px; border-radius: var(--radius-md); border: 1px solid var(--border-color); object-fit: contain; box-shadow: var(--shadow-sm);">
+        </div>
+        <div id="doc-viewer-file-container" style="display: none; padding: 24px; background: var(--bg-subtle); border-radius: var(--radius-md); border: 1px dashed var(--border-color);">
+          <div style="font-size: 48px; margin-bottom: 8px;">📄</div>
+          <div id="doc-viewer-file-name" style="font-weight: 700; font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">medical_certificate.pdf</div>
+          <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Attached Document File</div>
+          <a id="doc-viewer-download-btn" href="#" download class="btn btn-primary" style="text-decoration: none;">⬇️ Download Document</a>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-secondary" onclick="System.closeDocViewerModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- System JavaScript Engine -->
+  <script>
+    /**
+     * Complete, Human-Made Student Leave Management Engine
+     * Unified State Engine syncing Student, Faculty, Admin, and Parent Portals.
+     */
+    const System = {
+      // Core Data
+      leaves: [],
+      students: [
+        { rollNo: '21CS101', name: 'Karthik Raja', dept: 'Computer Science & Engineering', year: '3rd Year - Sec A', attendance: 88, parentPhone: '9876543210', status: 'Active' },
+        { rollNo: '21CS102', name: 'Divya Sundaram', dept: 'Computer Science & Engineering', year: '3rd Year - Sec A', attendance: 72, parentPhone: '9876543211', status: 'Active' },
+        { rollNo: '21CS103', name: 'Mohammed Farhan', dept: 'Computer Science & Engineering', year: '3rd Year - Sec B', attendance: 91, parentPhone: '9876543212', status: 'Active' },
+        { rollNo: '21IT101', name: 'Sanjay Kumar', dept: 'Information Technology', year: '2nd Year - Sec A', attendance: 68, parentPhone: '9876543213', status: 'Active' }
+      ],
+      faculty: [
+        { id: 'FAC101', name: 'Dr. Ramesh Kumar', designation: 'Associate Professor', dept: 'Computer Science & Engineering', classes: '3rd Year (Sec A & B)', status: 'Active' },
+        { id: 'FAC102', name: 'Prof. Geetha Lakshmi', designation: 'Assistant Professor', dept: 'Information Technology', classes: '2nd Year (Sec A)', status: 'Active' }
+      ],
+      policy: {
+        advanceHours: 12,
+        allowEmergency: true,
+        maxDays: 5,
+        maxMonthly: 3,
+        requireParentOtp: true
+      },
+
+      currentAuditLeaveId: null,
+      uploadedDoc: null,
+
+      init() {
+        // Load data from localStorage
+        const storedLeaves = localStorage.getItem('system_leaves');
+        if (storedLeaves) {
+          try { this.leaves = JSON.parse(storedLeaves); } catch (e) { this.leaves = []; }
+        }
+
+        // Seed realistic student leave applications with supporting documents if none exist
+        if (!this.leaves || this.leaves.length === 0) {
+          this.leaves = [
+            {
+              id: 'LEV-1001',
+              studentName: 'Karthik Raja',
+              rollNo: '21CS101',
+              department: 'Computer Science & Engineering',
+              year: '3rd Year - Sec A',
+              leaveType: 'Sick / Medical Leave',
+              parentPhone: '9876543210',
+              startDate: new Date().toISOString().split('T')[0],
+              endDate: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
+              totalDays: 3,
+              reason: 'Viral fever and respiratory infection; medical rest advised by physician.',
+              status: 'Pending',
+              parentStatus: 'Acknowledged',
+              parentRemark: 'Verified by Parent. Ward is on prescribed bed rest.',
+              facultyRemark: '',
+              submittedAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+              document: {
+                name: 'Medical_Prescription_Rest_Slip.jpg',
+                type: 'image/svg+xml',
+                size: '42 KB',
+                data: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" viewBox="0 0 400 260"><rect width="100%" height="100%" fill="%23f7fafc" rx="8"/><rect x="20" y="20" width="360" height="220" fill="none" stroke="%23cbd5e0" stroke-width="2" stroke-dasharray="6,6" rx="6"/><text x="200" y="70" font-family="sans-serif" font-size="20" font-weight="bold" fill="%232b6cb0" text-anchor="middle">🏥 CITY HEALTH CLINIC</text><text x="200" y="100" font-family="sans-serif" font-size="13" fill="%234a5568" text-anchor="middle">Medical Certificate for Leave</text><line x1="60" y1="120" x2="340" y2="120" stroke="%23e2e8f0" stroke-width="2"/><text x="200" y="145" font-family="sans-serif" font-size="12" fill="%232d3748" text-anchor="middle">Patient: Karthik Raja (21CS101)</text><text x="200" y="170" font-family="sans-serif" font-size="12" fill="%234a5568" text-anchor="middle">Advised 3 days medical bed rest for recovery</text><text x="200" y="215" font-family="sans-serif" font-size="11" font-weight="bold" fill="%2338a169" text-anchor="middle">✓ Verified Medical Seal &amp; Signature</text></svg>'
+              }
+            },
+            {
+              id: 'LEV-1002',
+              studentName: 'Divya Sundaram',
+              rollNo: '21CS102',
+              department: 'Computer Science & Engineering',
+              year: '3rd Year - Sec A',
+              leaveType: 'On-Duty (OD) / Official',
+              parentPhone: '9876543211',
+              startDate: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
+              endDate: new Date(Date.now() + 86400000 * 4).toISOString().split('T')[0],
+              totalDays: 2,
+              reason: 'Selected for State-Level Smart India Hackathon finals.',
+              status: 'Pending',
+              parentStatus: 'Waiting for Parent',
+              parentRemark: '',
+              facultyRemark: '',
+              submittedAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+              document: {
+                name: 'Hackathon_Selection_Letter.pdf',
+                type: 'application/pdf',
+                size: '128 KB',
+                data: null
+              }
+            }
+          ];
+          localStorage.setItem('system_leaves', JSON.stringify(this.leaves));
+        }
+
+        const storedStudents = localStorage.getItem('system_students');
+        if (storedStudents) {
+          try { this.students = JSON.parse(storedStudents); } catch (e) {}
+        }
+
+        const storedPolicy = localStorage.getItem('system_policy');
+        if (storedPolicy) {
+          try { this.policy = JSON.parse(storedPolicy); } catch (e) {}
+        }
+
+        // Set min date for date pickers
+        const todayStr = new Date().toISOString().split('T')[0];
+        const sStart = document.getElementById('s-startdate');
+        const sEnd = document.getElementById('s-enddate');
+        if (sStart) sStart.min = todayStr;
+        if (sEnd) sEnd.min = todayStr;
+
+        // Apply policy to UI
+        this.updatePolicyUI();
+
+        // Render counts & tables
+        this.refreshAll();
+      },
+
+      saveLeaves() {
+        localStorage.setItem('system_leaves', JSON.stringify(this.leaves));
+        this.refreshAll();
+      },
+
+      savePolicy() {
+        localStorage.setItem('system_policy', JSON.stringify(this.policy));
+        this.updatePolicyUI();
+        this.refreshAll();
+      },
+
+      saveStudents() {
+        localStorage.setItem('system_students', JSON.stringify(this.students));
+        this.renderAdminRoster();
+      },
+
+      refreshAll() {
+        this.updateCounts();
+        this.renderStudentLeaves();
+        this.renderFacultyTable();
+        this.renderAdminRoster();
+        this.renderAdminFaculty();
+        this.renderAdminAllLeaves();
+        this.populateParentSelector();
+      },
+
+      updatePolicyUI() {
+        const policyLabel = document.getElementById('student-policy-notice-label');
+        if (policyLabel) {
+          policyLabel.innerText = `Min ${this.policy.advanceHours} hrs notice | Max ${this.policy.maxDays} days`;
+        }
+
+        const admHours = document.getElementById('adm-advance-hours');
+        if (admHours) admHours.value = this.policy.advanceHours;
+
+        const admEmerg = document.getElementById('adm-allow-emergency');
+        if (admEmerg) admEmerg.checked = this.policy.allowEmergency;
+
+        const admMax = document.getElementById('adm-max-days');
+        if (admMax) admMax.value = this.policy.maxDays;
+
+        const admMonth = document.getElementById('adm-max-monthly');
+        if (admMonth) admMonth.value = this.policy.maxMonthly;
+
+        const admOtp = document.getElementById('adm-require-parent-otp');
+        if (admOtp) admOtp.checked = this.policy.requireParentOtp;
+      },
+
+      // ---------------- Role Switcher ----------------
+      switchRole(role) {
+        document.querySelectorAll('.role-nav-item').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('role-section-student').style.display = 'none';
+        document.getElementById('role-section-faculty').style.display = 'none';
+        document.getElementById('role-section-admin').style.display = 'none';
+        document.getElementById('role-section-parent').style.display = 'none';
+
+        if (role === 'student') {
+          document.getElementById('btn-role-student').classList.add('active');
+          document.getElementById('role-section-student').style.display = 'block';
+        } else if (role === 'faculty') {
+          document.getElementById('btn-role-faculty').classList.add('active');
+          document.getElementById('role-section-faculty').style.display = 'block';
+          this.renderFacultyTable();
+        } else if (role === 'admin') {
+          document.getElementById('btn-role-admin').classList.add('active');
+          document.getElementById('role-section-admin').style.display = 'block';
+        } else if (role === 'parent') {
+          document.getElementById('btn-role-parent').classList.add('active');
+          document.getElementById('role-section-parent').style.display = 'block';
+          this.populateParentSelector();
+        }
+      },
+
+      // ---------------- Student Subtabs ----------------
+      switchStudentSubTab(tab) {
+        document.querySelectorAll('#role-section-student .sub-tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('student-sub-apply').style.display = 'none';
+        document.getElementById('student-sub-myleaves').style.display = 'none';
+
+        if (tab === 'apply') {
+          document.getElementById('btn-student-apply').classList.add('active');
+          document.getElementById('student-sub-apply').style.display = 'block';
+        } else {
+          document.getElementById('btn-student-myleaves').classList.add('active');
+          document.getElementById('student-sub-myleaves').style.display = 'block';
+          this.renderStudentLeaves();
+        }
+      },
+
+      // ---------------- Admin Subtabs ----------------
+      switchAdminSubTab(tab) {
+        document.querySelectorAll('#role-section-admin .sub-tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('admin-sub-policy').style.display = 'none';
+        document.getElementById('admin-sub-roster').style.display = 'none';
+        document.getElementById('admin-sub-faculty').style.display = 'none';
+        document.getElementById('admin-sub-allleaves').style.display = 'none';
+
+        if (tab === 'policy') {
+          document.getElementById('btn-admin-policy').classList.add('active');
+          document.getElementById('admin-sub-policy').style.display = 'block';
+        } else if (tab === 'roster') {
+          document.getElementById('btn-admin-roster').classList.add('active');
+          document.getElementById('admin-sub-roster').style.display = 'block';
+          this.renderAdminRoster();
+        } else if (tab === 'faculty') {
+          document.getElementById('btn-admin-faculty').classList.add('active');
+          document.getElementById('admin-sub-faculty').style.display = 'block';
+          this.renderAdminFaculty();
+        } else if (tab === 'allleaves') {
+          document.getElementById('btn-admin-allleaves').classList.add('active');
+          document.getElementById('admin-sub-allleaves').style.display = 'block';
+          this.renderAdminAllLeaves();
+        }
+      },
+
+      updateDaysCalculation() {
+        const s = document.getElementById('s-startdate').value;
+        const e = document.getElementById('s-enddate').value;
+        const bar = document.getElementById('student-duration-bar');
+        const text = document.getElementById('student-duration-text');
+
+        if (s && e) {
+          const startDate = new Date(s);
+          const endDate = new Date(e);
+          const diffTime = endDate.getTime() - startDate.getTime();
+          const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+          if (days <= 0) {
+            bar.style.display = 'block';
+            bar.style.background = '#fed7d7';
+            bar.style.color = '#9b2c2c';
+            text.innerText = 'To Date cannot be earlier than From Date!';
+          } else if (days > this.policy.maxDays) {
+            bar.style.display = 'block';
+            bar.style.background = '#feebc8';
+            bar.style.color = '#975a16';
+            text.innerText = `${days} Days (Warning: Exceeds institutional limit of ${this.policy.maxDays} consecutive days. Special permission required).`;
+          } else {
+            bar.style.display = 'block';
+            bar.style.background = '#ebf8ff';
+            bar.style.color = '#1a365d';
+            text.innerText = `${days} Day${days > 1 ? 's' : ''}`;
+          }
+        } else {
+          bar.style.display = 'none';
+        }
+      },
+
+      checkEmergencyPolicyNotice() {
+        const type = document.getElementById('s-leavetype').value;
+        if (type === 'Emergency Leave' || type === 'Sick / Medical Leave') {
+          this.showNotice('Notice: Emergency / Medical leave is exempt from the advance notice deadline. Please attach supporting medical slip/prescription if available.', 'info');
+        }
+      },
+
+      handleDocSelect(e) {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        const isImage = file.type.startsWith('image/');
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+          this.uploadedDoc = {
+            name: file.name,
+            type: file.type || 'application/octet-stream',
+            size: (file.size / 1024 < 1024) ? Math.round(file.size / 1024) + ' KB' : (file.size / (1024 * 1024)).toFixed(1) + ' MB',
+            data: event.target.result
+          };
+
+          // Update preview UI
+          document.getElementById('s-doc-preview-wrapper').style.display = 'block';
+          document.getElementById('s-doc-file-name').innerText = file.name;
+          document.getElementById('s-doc-file-size').innerText = `${this.uploadedDoc.size} • Ready to submit`;
+
+          const thumb = document.getElementById('s-doc-preview-thumb');
+          const icon = document.getElementById('s-doc-file-icon');
+
+          if (isImage) {
+            thumb.src = event.target.result;
+            thumb.style.display = 'inline-block';
+            icon.style.display = 'none';
+          } else {
+            thumb.style.display = 'none';
+            icon.style.display = 'inline-block';
+            icon.innerText = file.name.endsWith('.pdf') ? '📕' : '📄';
+          }
+        };
+
+        if (isImage || file.type === 'application/pdf' || file.name.endsWith('.txt')) {
+          reader.readAsDataURL(file);
+        } else {
+          // Read metadata only for other files
+          this.uploadedDoc = {
+            name: file.name,
+            type: file.type || 'application/octet-stream',
+            size: (file.size / 1024 < 1024) ? Math.round(file.size / 1024) + ' KB' : (file.size / (1024 * 1024)).toFixed(1) + ' MB',
+            data: null
+          };
+          document.getElementById('s-doc-preview-wrapper').style.display = 'block';
+          document.getElementById('s-doc-file-name').innerText = file.name;
+          document.getElementById('s-doc-file-size').innerText = `${this.uploadedDoc.size} • Ready to submit`;
+          document.getElementById('s-doc-preview-thumb').style.display = 'none';
+          const icon = document.getElementById('s-doc-file-icon');
+          icon.style.display = 'inline-block';
+          icon.innerText = '📄';
+        }
+      },
+
+      clearSelectedDoc() {
+        this.uploadedDoc = null;
+        const fileInput = document.getElementById('s-doc-file');
+        if (fileInput) fileInput.value = '';
+        const preview = document.getElementById('s-doc-preview-wrapper');
+        if (preview) preview.style.display = 'none';
+      },
+
+      handleStudentSubmit(e) {
+        e.preventDefault();
+
+        const name = document.getElementById('s-name').value.trim();
+        const roll = document.getElementById('s-roll').value.trim().toUpperCase();
+        const dept = document.getElementById('s-dept').value;
+        const year = document.getElementById('s-year').value;
+        const leaveType = document.getElementById('s-leavetype').value;
+        const parentPhone = document.getElementById('s-parentphone').value.trim();
+        const startDate = document.getElementById('s-startdate').value;
+        const endDate = document.getElementById('s-enddate').value;
+        const reason = document.getElementById('s-reason').value.trim();
+
+        const sDate = new Date(startDate);
+        const eDate = new Date(endDate);
+
+        if (eDate < sDate) {
+          alert('End date cannot precede start date.');
+          return;
+        }
+
+        // Calculate Days
+        const totalDays = Math.max(1, Math.ceil((eDate.getTime() - sDate.getTime()) / (1000 * 60 * 60 * 24)) + 1);
+
+        // Core Policy Enforcement: Check Advance Hours Notice
+        const isEmergency = (leaveType === 'Emergency Leave' || leaveType === 'Sick / Medical Leave');
+        if (!isEmergency || !this.policy.allowEmergency) {
+          const now = new Date();
+          const departure = new Date(startDate);
+          departure.setHours(9, 0, 0, 0); // 9:00 AM departure standard
+          const hoursNotice = (departure.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+          if (hoursNotice < this.policy.advanceHours) {
+            alert(`[POLICY VIOLATION]\nInstitutional Policy requires at least ${this.policy.advanceHours} hours advance notice.\nNotice provided: approx ${Math.max(0, Math.round(hoursNotice))} hours.\n\nPlease choose "Emergency Leave" if this is an unforeseen medical/personal emergency.`);
+            return;
+          }
+        }
+
+        // Generate unique leave ID
+        const reqId = 'LEV-' + (1000 + this.leaves.length + 1);
+
+        const newLeave = {
+          id: reqId,
+          studentName: name,
+          rollNo: roll,
+          department: dept,
+          year: year,
+          leaveType: leaveType,
+          parentPhone: parentPhone,
+          startDate: startDate,
+          endDate: endDate,
+          totalDays: totalDays,
+          reason: reason,
+          status: 'Pending',
+          parentStatus: this.policy.requireParentOtp ? 'Waiting for Parent' : 'Exempt',
+          parentRemark: '',
+          facultyRemark: '',
+          submittedAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+          document: this.uploadedDoc ? { ...this.uploadedDoc } : null
+        };
+
+        this.leaves.unshift(newLeave);
+        this.saveLeaves();
+
+        // Also add student to directory if not present
+        if (!this.students.find(st => st.rollNo === roll)) {
+          this.students.push({
+            rollNo: roll,
+            name: name,
+            dept: dept,
+            year: year,
+            attendance: 85,
+            parentPhone: parentPhone,
+            status: 'Active'
+          });
+          this.saveStudents();
+        }
+
+        this.showNotice(`✓ Leave application ${reqId} successfully submitted with supporting documents and forwarded to Class Advisor!`, 'success');
+        document.getElementById('student-apply-form').reset();
+        document.getElementById('student-duration-bar').style.display = 'none';
+        this.clearSelectedDoc();
+
+        this.switchStudentSubTab('myleaves');
+      },
+
+      renderStudentLeaves() {
+        const container = document.getElementById('student-leaves-list');
+        const countSpan = document.getElementById('count-student-myleaves');
+        if (countSpan) countSpan.innerText = this.leaves.length;
+
+        if (this.leaves.length === 0) {
+          container.innerHTML = `
+            <div style="text-align: center; padding: 36px 16px; color: var(--text-muted);">
+              <div style="font-size: 40px; margin-bottom: 8px;">📭</div>
+              <div style="font-weight: 700; font-size: 16px; color: var(--text-primary);">No Leave Requests Found</div>
+              <div style="font-size: 13px; margin-bottom: 14px;">You have not applied for any leaves yet.</div>
+              <button class="btn btn-primary" onclick="System.switchStudentSubTab('apply')">➕ Apply Now</button>
+            </div>
+          `;
+          return;
+        }
+
+        let html = '';
+        this.leaves.forEach(l => {
+          let statusBadge = `<span class="badge badge-pending">⏳ Pending Review</span>`;
+          if (l.status === 'Approved') statusBadge = `<span class="badge badge-approved">✓ Approved</span>`;
+          if (l.status === 'Rejected') statusBadge = `<span class="badge badge-rejected">✕ Rejected</span>`;
+
+          let parentBadge = `<span class="badge badge-parent-wait">👨‍👩‍👧 Waiting Parent OTP</span>`;
+          if (l.parentStatus === 'Acknowledged') parentBadge = `<span class="badge badge-parent-ack">✓ Parent Acknowledged</span>`;
+          if (l.parentStatus === 'Exempt') parentBadge = `<span class="badge badge-info">Exempt</span>`;
+
+          html += `
+            <div class="card" style="border: 1px solid var(--border-color); padding: 16px; margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap;">
+                <div>
+                  <span class="badge badge-info" style="font-weight: 700;">${l.id}</span>
+                  <strong style="font-size: 15px; margin-left: 6px;">${l.studentName}</strong>
+                  <span style="font-size: 12px; color: var(--text-muted);">(${l.rollNo})</span>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+                    ${l.department} • ${l.year}
+                  </div>
+                </div>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  ${parentBadge}
+                  ${statusBadge}
+                </div>
+              </div>
+
+              <div style="background: var(--bg-subtle); padding: 10px 14px; border-radius: var(--radius-md); margin: 10px 0; font-size: 13px; display: flex; gap: 20px; flex-wrap: wrap;">
+                <div><strong>Category:</strong> ${l.leaveType}</div>
+                <div><strong>Dates:</strong> ${l.startDate} to ${l.endDate} (${l.totalDays} days)</div>
+                <div><strong>Parent Contact:</strong> ${l.parentPhone}</div>
+              </div>
+
+              <div style="font-size: 13px; margin-bottom: 6px;">
+                <strong>Reason:</strong> ${l.reason}
+              </div>
+
+              ${l.document ? `
+                <div style="margin: 8px 0; display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="doc-badge-tag" onclick="System.viewDoc('${l.id}')">
+                    📎 ${l.document.name.length > 25 ? l.document.name.substring(0, 22) + '...' : l.document.name}
+                    <span style="opacity: 0.7; font-size: 10px;">(${l.document.size})</span>
+                  </button>
+                </div>
+              ` : ''}
+
+              ${l.facultyRemark ? `
+                <div style="font-size: 13px; background: #ebf8ff; border-left: 3px solid var(--accent-blue); padding: 8px 12px; border-radius: 0 var(--radius-md) var(--radius-md) 0; margin-top: 8px;">
+                  <strong>Advisor Remarks:</strong> ${l.facultyRemark}
+                </div>
+              ` : ''}
+
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 8px; font-size: 11px; color: var(--text-muted);">
+                <span>Submitted on ${l.submittedAt}</span>
+                <div style="display: flex; gap: 6px;">
+                  ${l.parentStatus === 'Waiting for Parent' ? `
+                    <button class="action-badge-btn" style="color: var(--primary);" onclick="System.openParentVerificationDirect('${l.id}')">
+                      📲 Enter Parent OTP
+                    </button>
+                  ` : ''}
+                  <button class="action-badge-btn" style="color: var(--danger);" onclick="System.deleteLeave('${l.id}')">
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        container.innerHTML = html;
+      },
+
+      // ---------------- Faculty Desk Operations (INNOVATIVE) ----------------
+      renderFacultyTable() {
+        const tbody = document.getElementById('faculty-requests-tbody');
+        if (!tbody) return;
+
+        const search = (document.getElementById('faculty-search-input')?.value || '').toLowerCase();
+        const statusFilter = document.getElementById('faculty-filter-status')?.value || 'ALL';
+
+        let list = this.leaves.filter(l => {
+          const matchSearch = l.studentName.toLowerCase().includes(search) || l.rollNo.toLowerCase().includes(search) || l.id.toLowerCase().includes(search);
+          if (!matchSearch) return false;
+
+          if (statusFilter === 'Pending') return l.status === 'Pending';
+          if (statusFilter === 'ParentPending') return l.parentStatus === 'Waiting for Parent';
+          if (statusFilter === 'Approved') return l.status === 'Approved';
+          if (statusFilter === 'Rejected') return l.status === 'Rejected';
+          return true;
+        });
+
+        if (list.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="8" style="text-align: center; padding: 24px; color: var(--text-muted);">
+                No matching requests found in Class Advisor worklist.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        let html = '';
+        list.forEach(l => {
+          let statusBadge = `<span class="badge badge-pending">Pending</span>`;
+          if (l.status === 'Approved') statusBadge = `<span class="badge badge-approved">Approved</span>`;
+          if (l.status === 'Rejected') statusBadge = `<span class="badge badge-rejected">Rejected</span>`;
+
+          let parentBadge = `<span class="badge badge-parent-wait">Waiting OTP</span>`;
+          if (l.parentStatus === 'Acknowledged') parentBadge = `<span class="badge badge-parent-ack">✓ Confirmed</span>`;
+          if (l.parentStatus === 'Exempt') parentBadge = `<span class="badge badge-info">Exempt</span>`;
+
+          html += `
+            <tr>
+              <td><strong style="color: var(--primary);">${l.id}</strong></td>
+              <td>
+                <div style="font-weight: 700; color: var(--text-primary);">${l.studentName}</div>
+                <div style="font-size: 11px; color: var(--text-muted);">${l.rollNo}</div>
+              </td>
+              <td>
+                <div style="font-size: 12px;">${l.department}</div>
+                <div style="font-size: 11px; color: var(--text-muted);">${l.year}</div>
+              </td>
+              <td>
+                <div style="font-size: 12px; font-weight: 600;">${l.startDate} to ${l.endDate}</div>
+                <div style="font-size: 11px; color: var(--text-muted);">${l.totalDays} day(s)</div>
+              </td>
+              <td>
+                <span class="badge badge-info" style="font-size: 11px;">${l.leaveType}</span>
+                ${l.document ? `
+                  <div style="margin-top: 4px;">
+                    <button type="button" class="doc-badge-tag" style="padding: 2px 7px; font-size: 10px;" onclick="System.viewDoc('${l.id}')">
+                      📎 Proof Attached
+                    </button>
+                  </div>
+                ` : ''}
+              </td>
+              <td>${parentBadge}</td>
+              <td>${statusBadge}</td>
+              <td style="text-align: right;">
+                <button class="btn btn-sm btn-primary" onclick="System.openAuditHistoryModal('${l.id}')">
+                  🔍 Audit & Review
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+
+        tbody.innerHTML = html;
+      },
+
+      // INNOVATIVE FEATURE: Open Student History Dossier
+      openAuditHistoryModal(reqId) {
+        const leave = this.leaves.find(l => l.id === reqId);
+        if (!leave) return;
+
+        this.currentAuditLeaveId = reqId;
+
+        // Populate student profile from directory
+        const studentInfo = this.students.find(s => s.rollNo === leave.rollNo) || {
+          rollNo: leave.rollNo,
+          name: leave.studentName,
+          attendance: 82,
+          dept: leave.department
+        };
+
+        document.getElementById('audit-modal-student-name').innerText = `${studentInfo.name} (${studentInfo.rollNo})`;
+        document.getElementById('audit-attendance-val').innerText = `${studentInfo.attendance}%`;
+        
+        const attStatusElem = document.getElementById('audit-attendance-status');
+        if (studentInfo.attendance < 75) {
+          attStatusElem.className = 'attendance-pill att-danger';
+          attStatusElem.innerText = '⚠️ Attendance Below 75% Requirement (Strict Sanction Required)';
+        } else {
+          attStatusElem.className = 'attendance-pill att-good';
+          attStatusElem.innerText = '✓ Safe Attendance Standing';
+        }
+
+        // Leave details
+        document.getElementById('audit-req-id').innerText = leave.id;
+        document.getElementById('audit-req-dates').innerText = `${leave.startDate} to ${leave.endDate}`;
+        document.getElementById('audit-req-days').innerText = leave.totalDays;
+        document.getElementById('audit-req-category').innerText = leave.leaveType;
+        document.getElementById('audit-req-reason').innerText = leave.reason;
+
+        const parentStatusElem = document.getElementById('audit-parent-status');
+        if (leave.parentStatus === 'Acknowledged') {
+          parentStatusElem.innerHTML = `<span class="badge badge-parent-ack">✓ Confirmed by Parent (${leave.parentPhone})</span>`;
+        } else {
+          parentStatusElem.innerHTML = `<span class="badge badge-parent-wait">⏳ Awaiting OTP Verification (${leave.parentPhone})</span>`;
+        }
+
+        const auditDocElem = document.getElementById('audit-req-doc');
+        if (leave.document) {
+          auditDocElem.innerHTML = `
+            <button type="button" class="doc-badge-tag" onclick="System.viewDoc('${leave.id}')">
+              📎 ${leave.document.name} (${leave.document.size}) - Click to View Proof
+            </button>
+          `;
+        } else {
+          auditDocElem.innerHTML = `<span style="color: var(--text-muted); font-style: italic;">None uploaded</span>`;
+        }
+
+        // Prior leaves history for pattern absenteeism check
+        const otherLeaves = this.leaves.filter(l => l.rollNo === leave.rollNo && l.id !== leave.id);
+        const historyBox = document.getElementById('audit-past-history-container');
+        
+        let priorDaysSum = 0;
+        otherLeaves.forEach(o => { if (o.status === 'Approved') priorDaysSum += o.totalDays; });
+        document.getElementById('audit-leaves-count').innerText = `${otherLeaves.length} Requests (${priorDaysSum} Days Sanctioned)`;
+
+        if (otherLeaves.length === 0) {
+          historyBox.innerHTML = `
+            <div style="font-size: 12px; color: var(--text-muted); padding: 8px 0;">
+              No previous leave applications recorded this semester. Clean record.
+            </div>
+          `;
+        } else {
+          let hHtml = '';
+          otherLeaves.forEach(ol => {
+            let b = `<span class="badge badge-pending" style="font-size: 11px;">Pending</span>`;
+            if (ol.status === 'Approved') b = `<span class="badge badge-approved" style="font-size: 11px;">Approved</span>`;
+            if (ol.status === 'Rejected') b = `<span class="badge badge-rejected" style="font-size: 11px;">Rejected</span>`;
+
+            hHtml += `
+              <div class="history-audit-item">
+                <div>
+                  <strong style="font-size: 12px;">${ol.startDate} to ${ol.endDate}</strong> (${ol.totalDays} d)
+                  <div style="font-size: 11px; color: var(--text-secondary);">${ol.leaveType} • Reason: ${ol.reason}</div>
+                </div>
+                <div>${b}</div>
+              </div>
+            `;
+          });
+          historyBox.innerHTML = hHtml;
+        }
+
+        document.getElementById('audit-decision-remark').value = leave.facultyRemark || '';
+        document.getElementById('audit-history-modal').classList.add('open');
+      },
+
+      closeAuditModal() {
+        this.currentAuditLeaveId = null;
+        document.getElementById('audit-history-modal').classList.remove('open');
+      },
+
+      handleAuditApprove() {
+        if (!this.currentAuditLeaveId) return;
+        const leave = this.leaves.find(l => l.id === this.currentAuditLeaveId);
+        if (!leave) return;
+
+        // Check if parent OTP mandatory
+        if (this.policy.requireParentOtp && leave.parentStatus === 'Waiting for Parent') {
+          if (!confirm('Notice: Parent verification is currently pending. Do you wish to override and sanction as Class Advisor?')) {
+            return;
+          }
+        }
+
+        const remark = document.getElementById('audit-decision-remark').value.trim() || 'Leave sanctioned by Class Advisor.';
+        leave.status = 'Approved';
+        leave.facultyRemark = remark;
+        this.saveLeaves();
+        this.closeAuditModal();
+        this.showNotice(`✓ Leave ${leave.id} has been Approved and Sanctioned!`, 'success');
+      },
+
+      handleAuditReject() {
+        if (!this.currentAuditLeaveId) return;
+        const leave = this.leaves.find(l => l.id === this.currentAuditLeaveId);
+        if (!leave) return;
+
+        const remark = document.getElementById('audit-decision-remark').value.trim();
+        if (!remark) {
+          alert('Institutional Rule: You must provide a clear reason / remark when rejecting a student leave.');
+          return;
+        }
+
+        leave.status = 'Rejected';
+        leave.facultyRemark = remark;
+        this.saveLeaves();
+        this.closeAuditModal();
+        this.showNotice(`✕ Leave ${leave.id} has been Rejected with remarks recorded.`, 'danger');
+      },
+
+      // ---------------- Admin Directory & Policy Operations ----------------
+      saveAdminPolicy(e) {
+        e.preventDefault();
+        this.policy.advanceHours = parseInt(document.getElementById('adm-advance-hours').value) || 12;
+        this.policy.allowEmergency = document.getElementById('adm-allow-emergency').checked;
+        this.policy.maxDays = parseInt(document.getElementById('adm-max-days').value) || 5;
+        this.policy.maxMonthly = parseInt(document.getElementById('adm-max-monthly').value) || 3;
+        this.policy.requireParentOtp = document.getElementById('adm-require-parent-otp').checked;
+
+        this.savePolicy();
+        this.showNotice('✓ Institutional Leave Governance Policy updated successfully!', 'success');
+      },
+
+      renderAdminRoster() {
+        const tbody = document.getElementById('admin-students-tbody');
+        if (!tbody) return;
+
+        let html = '';
+        this.students.forEach((s, idx) => {
+          let attBadge = `<span class="attendance-pill att-good">${s.attendance}%</span>`;
+          if (s.attendance < 75) attBadge = `<span class="attendance-pill att-danger">${s.attendance}% (Low)</span>`;
+
+          html += `
+            <tr>
+              <td><strong>${s.rollNo}</strong></td>
+              <td>${s.name}</td>
+              <td>${s.dept} (${s.year || '3rd Year'})</td>
+              <td>${attBadge}</td>
+              <td>${s.parentPhone}</td>
+              <td><span class="badge badge-approved" style="font-size: 11px;">${s.status}</span></td>
+              <td style="text-align: right;">
+                <button class="action-badge-btn" onclick="System.deleteStudent(${idx})">Remove</button>
+              </td>
+            </tr>
+          `;
+        });
+        tbody.innerHTML = html;
+
+        const statS = document.getElementById('a-stat-students');
+        if (statS) statS.innerText = this.students.length;
+      },
+
+      renderAdminFaculty() {
+        const tbody = document.getElementById('admin-faculty-tbody');
+        if (!tbody) return;
+
+        let html = '';
+        this.faculty.forEach(f => {
+          html += `
+            <tr>
+              <td><strong>${f.id}</strong></td>
+              <td>${f.name}</td>
+              <td>${f.designation}</td>
+              <td>${f.dept}</td>
+              <td><span class="badge badge-info" style="font-size: 11px;">${f.classes}</span></td>
+              <td><span class="badge badge-approved" style="font-size: 11px;">${f.status}</span></td>
+            </tr>
+          `;
+        });
+        tbody.innerHTML = html;
+
+        const statF = document.getElementById('a-stat-faculty');
+        if (statF) statF.innerText = this.faculty.length;
+      },
+
+      renderAdminAllLeaves() {
+        const tbody = document.getElementById('admin-all-leaves-tbody');
+        if (!tbody) return;
+
+        if (this.leaves.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 20px; color: var(--text-muted);">No records in college log.</td></tr>`;
+          return;
+        }
+
+        let html = '';
+        this.leaves.forEach(l => {
+          let b = `<span class="badge badge-pending">Pending</span>`;
+          if (l.status === 'Approved') b = `<span class="badge badge-approved">Approved</span>`;
+          if (l.status === 'Rejected') b = `<span class="badge badge-rejected">Rejected</span>`;
+
+          html += `
+            <tr>
+              <td><strong>${l.id}</strong></td>
+              <td>${l.studentName}</td>
+              <td>${l.rollNo}</td>
+              <td>${l.department}</td>
+              <td>${l.startDate} to ${l.endDate}</td>
+              <td>
+                ${l.leaveType}
+                ${l.document ? `
+                  <div style="margin-top: 3px;">
+                    <button type="button" class="doc-badge-tag" style="padding: 2px 6px; font-size: 10px;" onclick="System.viewDoc('${l.id}')">📎 Proof</button>
+                  </div>
+                ` : ''}
+              </td>
+              <td>${b}</td>
+              <td style="font-size: 12px; color: var(--text-secondary);">${l.facultyRemark || '-'}</td>
+            </tr>
+          `;
+        });
+        tbody.innerHTML = html;
+      },
+
+      openAddStudentModal() {
+        document.getElementById('add-student-form').reset();
+        document.getElementById('add-student-modal').classList.add('open');
+      },
+
+      closeAddStudentModal() {
+        document.getElementById('add-student-modal').classList.remove('open');
+      },
+
+      saveNewStudent(e) {
+        e.preventDefault();
+        const roll = document.getElementById('new-s-roll').value.trim().toUpperCase();
+        const name = document.getElementById('new-s-name').value.trim();
+        const dept = document.getElementById('new-s-dept').value;
+        const att = parseInt(document.getElementById('new-s-att').value) || 85;
+        const phone = document.getElementById('new-s-phone').value.trim();
+
+        this.students.push({
+          rollNo: roll,
+          name: name,
+          dept: dept,
+          year: '3rd Year - Sec A',
+          attendance: att,
+          parentPhone: phone,
+          status: 'Active'
+        });
+        this.saveStudents();
+        this.closeAddStudentModal();
+        this.showNotice(`✓ Student ${name} (${roll}) added to institution directory.`, 'success');
+      },
+
+      deleteStudent(idx) {
+        if (confirm('Remove student from directory?')) {
+          this.students.splice(idx, 1);
+          this.saveStudents();
+        }
+      },
+
+      // ---------------- Parent Verification Portal Operations ----------------
+      populateParentSelector() {
+        const sel = document.getElementById('parent-select-request');
+        if (!sel) return;
+
+        if (this.leaves.length === 0) {
+          sel.innerHTML = '<option value="">No active leave applications in system</option>';
+          document.getElementById('parent-request-display').style.display = 'none';
+          return;
+        }
+
+        let opts = '<option value="">-- Choose a Student Leave Request --</option>';
+        this.leaves.forEach(l => {
+          opts += `<option value="${l.id}">${l.id} - ${l.studentName} (${l.rollNo}) [${l.parentStatus}]</option>`;
+        });
+        sel.innerHTML = opts;
+
+        // Auto select first if available
+        if (this.leaves.length > 0) {
+          sel.selectedIndex = 1;
+          this.loadParentSelectedRequest();
+        }
+      },
+
+      openParentVerificationDirect(id) {
+        this.switchRole('parent');
+        const sel = document.getElementById('parent-select-request');
+        if (sel) {
+          sel.value = id;
+          this.loadParentSelectedRequest();
+        }
+      },
+
+      loadParentSelectedRequest() {
+        const sel = document.getElementById('parent-select-request');
+        const card = document.getElementById('parent-request-display');
+        if (!sel || !card) return;
+
+        const id = sel.value;
+        const leave = this.leaves.find(l => l.id === id);
+        if (!leave) {
+          card.style.display = 'none';
+          return;
+        }
+
+        document.getElementById('p-card-id').innerText = leave.id;
+        document.getElementById('p-card-name').innerText = leave.studentName;
+        document.getElementById('p-card-class').innerText = `${leave.department} • Roll No: ${leave.rollNo} (${leave.year})`;
+        document.getElementById('p-card-dates').innerText = `${leave.startDate} to ${leave.endDate}`;
+        document.getElementById('p-card-days').innerText = leave.totalDays;
+        document.getElementById('p-card-type').innerText = leave.leaveType;
+        document.getElementById('p-card-reason').innerText = leave.reason;
+
+        const pDocWrapper = document.getElementById('p-card-doc-wrapper');
+        const pDocElem = document.getElementById('p-card-doc');
+        if (pDocWrapper && pDocElem) {
+          if (leave.document) {
+            pDocWrapper.style.display = 'block';
+            pDocElem.innerHTML = `
+              <button type="button" class="doc-badge-tag" style="margin-left: 6px;" onclick="System.viewDoc('${leave.id}')">
+                📎 ${leave.document.name} (${leave.document.size})
+              </button>
+            `;
+          } else {
+            pDocWrapper.style.display = 'none';
+          }
+        }
+
+        const otpBox = document.getElementById('parent-otp-form-box');
+        const ackBox = document.getElementById('parent-already-verified-box');
+        const badgeElem = document.getElementById('p-card-badge');
+
+        if (leave.parentStatus === 'Acknowledged') {
+          badgeElem.innerHTML = `<span class="badge badge-parent-ack" style="font-size: 13px;">✓ Acknowledged</span>`;
+          otpBox.style.display = 'none';
+          ackBox.style.display = 'block';
+        } else {
+          badgeElem.innerHTML = `<span class="badge badge-parent-wait" style="font-size: 13px;">⏳ Waiting OTP</span>`;
+          otpBox.style.display = 'block';
+          ackBox.style.display = 'none';
+        }
+
+        card.style.display = 'block';
+      },
+
+      submitParentVerification() {
+        const sel = document.getElementById('parent-select-request');
+        const leave = this.leaves.find(l => l.id === sel.value);
+        if (!leave) return;
+
+        const otp = document.getElementById('p-otp-input').value.trim();
+        const remark = document.getElementById('p-parent-remark').value.trim();
+
+        if (otp !== '123456') {
+          alert('Invalid OTP code. For demo, use 123456.');
+          return;
+        }
+
+        leave.parentStatus = 'Acknowledged';
+        leave.parentRemark = remark || 'Confirmed by Parent via Mobile OTP.';
+        this.saveLeaves();
+        this.loadParentSelectedRequest();
+        this.showNotice(`✓ Parent acknowledgement recorded for ${leave.id}! Forwarded to Faculty Class Advisor.`, 'success');
+      },
+
+      // ---------------- Quick Test Case Generator ----------------
+      openQuickTestLeave() {
+        const reqId = 'LEV-' + (1000 + this.leaves.length + 1);
+        const sample = {
+          id: reqId,
+          studentName: 'Divya Sundaram',
+          rollNo: '21CS102',
+          department: 'Computer Science & Engineering',
+          year: '3rd Year - Sec A',
+          leaveType: 'Sick / Medical Leave',
+          parentPhone: '9876543211',
+          startDate: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
+          endDate: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
+          totalDays: 2,
+          reason: 'Doctor advised diagnostic consultation and tests.',
+          status: 'Pending',
+          parentStatus: 'Waiting for Parent',
+          parentRemark: '',
+          facultyRemark: '',
+          submittedAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+          document: {
+            name: 'Consultation_Slip.jpg',
+            type: 'image/svg+xml',
+            size: '38 KB',
+            data: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240" viewBox="0 0 400 240"><rect width="100%" height="100%" fill="%23f7fafc" rx="8"/><rect x="20" y="20" width="360" height="200" fill="none" stroke="%23cbd5e0" stroke-width="2" stroke-dasharray="6,6" rx="6"/><text x="200" y="65" font-family="sans-serif" font-size="18" font-weight="bold" fill="%232b6cb0" text-anchor="middle">🏥 APOLLO MEDICAL CENTRE</text><text x="200" y="95" font-family="sans-serif" font-size="12" fill="%234a5568" text-anchor="middle">Outpatient Consultation Proof</text><line x1="60" y1="115" x2="340" y2="115" stroke="%23e2e8f0" stroke-width="2"/><text x="200" y="140" font-family="sans-serif" font-size="12" fill="%232d3748" text-anchor="middle">Patient: Divya Sundaram (21CS102)</text><text x="200" y="165" font-family="sans-serif" font-size="12" fill="%234a5568" text-anchor="middle">Medical rest &amp; clinical checkup: 2 Days</text><text x="200" y="195" font-family="sans-serif" font-size="11" font-weight="bold" fill="%2338a169" text-anchor="middle">✓ Attending Physician Sign</text></svg>'
+          }
+        };
+        this.leaves.unshift(sample);
+        this.saveLeaves();
+        this.showNotice(`Added sample student request ${reqId} with supporting document to Class Advisor queue.`, 'info');
+      },
+
+      // ---------------- Supporting Document Viewer Modal ----------------
+      viewDoc(leaveId) {
+        const leave = this.leaves.find(l => l.id === leaveId);
+        if (!leave || !leave.document) {
+          alert('No document attached for this request.');
+          return;
+        }
+
+        const doc = leave.document;
+        document.getElementById('doc-viewer-title').innerText = `📎 Document: ${doc.name}`;
+
+        const imgContainer = document.getElementById('doc-viewer-img-container');
+        const fileContainer = document.getElementById('doc-viewer-file-container');
+        const img = document.getElementById('doc-viewer-img');
+
+        if (doc.data && (doc.data.startsWith('data:image/') || (doc.type && doc.type.startsWith('image/')))) {
+          img.src = doc.data;
+          imgContainer.style.display = 'block';
+          fileContainer.style.display = 'none';
+        } else {
+          imgContainer.style.display = 'none';
+          fileContainer.style.display = 'block';
+          document.getElementById('doc-viewer-file-name').innerText = doc.name;
+          const dlBtn = document.getElementById('doc-viewer-download-btn');
+          if (doc.data) {
+            dlBtn.href = doc.data;
+            dlBtn.download = doc.name;
+            dlBtn.style.display = 'inline-block';
+          } else {
+            dlBtn.style.display = 'none';
+          }
+        }
+
+        document.getElementById('doc-viewer-modal').classList.add('open');
+      },
+
+      closeDocViewerModal() {
+        document.getElementById('doc-viewer-modal').classList.remove('open');
+      },
+
+      deleteLeave(id) {
+        if (confirm(`Delete leave application ${id}?`)) {
+          this.leaves = this.leaves.filter(l => l.id !== id);
+          this.saveLeaves();
+          this.showNotice(`Leave ${id} removed.`, 'info');
+        }
+      },
+
+      updateCounts() {
+        const pendingCount = this.leaves.filter(l => l.status === 'Pending').length;
+        const approvedCount = this.leaves.filter(l => l.status === 'Approved').length;
+        const rejectedCount = this.leaves.filter(l => l.status === 'Rejected').length;
+        const parentWaitCount = this.leaves.filter(l => l.parentStatus === 'Waiting for Parent').length;
+
+        // Faculty Stats
+        const fBadge = document.getElementById('badge-faculty-pending-count');
+        if (fBadge) fBadge.innerText = pendingCount;
+        const fTot = document.getElementById('f-stat-total');
+        if (fTot) fTot.innerText = this.leaves.length;
+        const fPend = document.getElementById('f-stat-pending');
+        if (fPend) fPend.innerText = pendingCount;
+        const fPar = document.getElementById('f-stat-parent-wait');
+        if (fPar) fPar.innerText = parentWaitCount;
+        const fApp = document.getElementById('f-stat-approved');
+        if (fApp) fApp.innerText = approvedCount;
+        const fRej = document.getElementById('f-stat-rejected');
+        if (fRej) fRej.innerText = rejectedCount;
+
+        // Admin Stats
+        const aLeaves = document.getElementById('a-stat-leaves');
+        if (aLeaves) aLeaves.innerText = this.leaves.length;
+        const aAckRate = document.getElementById('a-stat-parent-rate');
+        if (aAckRate) {
+          const totalReqs = this.leaves.length;
+          const acks = this.leaves.filter(l => l.parentStatus === 'Acknowledged').length;
+          aAckRate.innerText = totalReqs > 0 ? Math.round((acks / totalReqs) * 100) + '%' : '100%';
+        }
+      },
+
+      showNotice(msg, type = 'success') {
+        const box = document.getElementById('system-alert-box');
+        if (!box) return;
+
+        box.className = type === 'danger' ? 'alert alert-danger' : (type === 'info' ? 'alert alert-info' : 'alert alert-success');
+        box.innerText = msg;
+        box.style.display = 'block';
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        setTimeout(() => {
+          box.style.display = 'none';
+        }, 5000);
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      System.init();
+    });
+  </script>
+</body>
+</html>

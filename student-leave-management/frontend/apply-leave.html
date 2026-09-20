@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apply for Leave - Student Portal</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header-bar">
+    <div class="header-container">
+      <div class="brand-section">
+        <div class="college-logo-badge">📝</div>
+        <div>
+          <div class="brand-title">Leave Application Form</div>
+          <div class="brand-subtitle">Official Student Leave Request Submission</div>
+        </div>
+      </div>
+      <div class="header-actions" id="header-user-info">
+        <!-- Injected via Auth.js -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Bar -->
+  <div class="demo-role-banner">
+    <div><a href="student.html" style="color: #ffffff; text-decoration: none; font-weight: 600;">← Back to Student Dashboard</a></div>
+    <div><span>Submission Rule: Advance Notice Validated by Server</span></div>
+  </div>
+
+  <main class="main-container" style="max-width: 800px;">
+    
+    <div class="card" style="box-shadow: var(--shadow-md);">
+      <div class="card-header">
+        <div class="card-title">✍️ New Leave Application</div>
+        <span style="font-size: 12px; color: var(--text-muted);">All fields marked with * are mandatory</span>
+      </div>
+
+      <div id="submit-msg-box" class="alert" style="display: none;"></div>
+
+      <form id="apply-leave-form">
+        
+        <!-- Authenticated Identity Display (Read-Only to Prevent ID Spoofing) -->
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label class="form-label">Student ID (Immutable)</label>
+            <input type="text" id="display-student-id" class="form-control" readonly>
+            <div class="form-help">Bound to authenticated session</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Student Name</label>
+            <input type="text" id="display-student-name" class="form-control" readonly>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Department & Year</label>
+            <input type="text" id="display-student-dept" class="form-control" readonly>
+          </div>
+        </div>
+
+        <!-- Leave Details -->
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label required" for="leave-type">Leave Type</label>
+            <select id="leave-type" class="form-control" required>
+              <option value="Personal Leave">Personal Leave</option>
+              <option value="Medical Leave">Medical Leave</option>
+              <option value="Emergency Leave">Emergency Leave (Short notice permitted)</option>
+              <option value="On-Duty Leave">On-Duty Leave (Sports / Academic Conference)</option>
+              <option value="Other">Other</option>
+            </select>
+            <div class="form-help">Emergency leave requires immediate cause and faculty scrutiny.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label required" for="leave-start-time">Expected Departure Time</label>
+            <input type="text" id="leave-start-time" class="form-control" value="09:00 AM" placeholder="e.g. 09:00 AM">
+            <div class="form-help">Used for deadline calculation against server time</div>
+          </div>
+        </div>
+
+        <!-- Dates and Calculation -->
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label class="form-label required" for="leave-start-date">From Date</label>
+            <input type="date" id="leave-start-date" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label required" for="leave-end-date">To Date</label>
+            <input type="date" id="leave-end-date" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Total Days (Calculated)</label>
+            <input type="text" id="calculated-days" class="form-control" readonly placeholder="Auto-calculated" style="font-weight: 700; color: var(--accent-blue);">
+          </div>
+        </div>
+
+        <!-- Dynamic Deadline Warning Banner -->
+        <div id="deadline-warning-box" class="alert alert-info" style="display: none;"></div>
+
+        <!-- Reason -->
+        <div class="form-group">
+          <label class="form-label required" for="leave-reason">Detailed Reason for Leave</label>
+          <textarea 
+            id="leave-reason" 
+            class="form-control" 
+            rows="3" 
+            placeholder="State the specific reason for requesting leave (e.g., attending sister's wedding, doctor appointment)..." 
+            required
+          ></textarea>
+        </div>
+
+        <!-- Supporting Document -->
+        <div class="form-group">
+          <label class="form-label" for="leave-document">Supporting Document (Optional for Personal, Recommended for Medical / On-Duty)</label>
+          <input type="file" id="leave-document" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+          <div class="form-help">Accepted formats: PDF, JPG, PNG (Max 5MB)</div>
+        </div>
+
+        <div style="background-color: var(--bg-subtle); padding: 14px; border-radius: var(--radius-md); margin-bottom: 20px; font-size: 12px; color: var(--text-secondary);">
+          <strong>Governance Notice:</strong>
+          Upon submitting this request, an automated verification alert will be dispatched to your registered parent / guardian (<code>9876543210</code>).
+          Once your parent acknowledges the notification via OTP or verified account, your Class Advisor will review and record their decision.
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+          <a href="student.html" class="btn btn-secondary">Cancel</a>
+          <button type="submit" id="submit-leave-btn" class="btn btn-primary" style="padding: 10px 24px;">
+            Submit Leave Request
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/leave.js"></script>
+</body>
+</html>

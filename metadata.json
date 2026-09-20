@@ -1,0 +1,6 @@
+{
+  "name": "CampusEase",
+  "description": "Smart Student Leave & Outpass Management System with multi-tier workflow, parent verification, and real-time policy validation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

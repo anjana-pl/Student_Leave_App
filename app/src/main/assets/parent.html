@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parent Leave Acknowledgement Portal - College System</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header-bar">
+    <div class="header-container">
+      <div class="brand-section">
+        <div class="college-logo-badge">👨‍👩‍👧</div>
+        <div>
+          <div class="brand-title">Parent / Guardian Verification Portal</div>
+          <div class="brand-subtitle">Official College Leave Verification & Safety Consent</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a href="index.html" class="btn btn-sm btn-secondary">Student/Staff Login</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Banner -->
+  <div class="demo-role-banner">
+    <div><strong>Parent Access:</strong> Verify ward leave requests via registered mobile OTP</div>
+    <div class="role-buttons">
+      <button class="btn-demo" onclick="ParentPortal.loadQuickDemo('LR1024')">Load Sample Request LR1024</button>
+      <a href="student.html" class="btn-demo" style="text-decoration: none;">👨‍🎓 Back to Student View</a>
+    </div>
+  </div>
+
+  <main class="main-container" style="max-width: 760px;">
+
+    <!-- Lookup Card if no ID is passed -->
+    <div class="card" id="lookup-card">
+      <div class="card-header">
+        <div class="card-title">🔍 Lookup Ward's Leave Application</div>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <input 
+          type="text" 
+          id="lookup-request-id" 
+          class="form-control" 
+          placeholder="Enter Leave Request ID (e.g., LR1024)" 
+          value="LR1024"
+        >
+        <button class="btn btn-primary" onclick="ParentPortal.handleLookup()">Fetch Request</button>
+      </div>
+    </div>
+
+    <div id="parent-msg-box" class="alert" style="display: none;"></div>
+
+    <!-- Ward's Request Details Card -->
+    <div class="card" id="parent-details-card" style="display: none;">
+      <div class="card-header">
+        <div>
+          <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Leave Application</div>
+          <h2 id="parent-req-id" style="font-size: 20px; color: var(--primary); font-weight: 700;">-</h2>
+        </div>
+        <div id="parent-status-badge">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Student & Guardian Summary -->
+      <div class="form-grid-2" style="background-color: var(--bg-subtle); padding: 14px; border-radius: var(--radius-md); margin-bottom: 18px;">
+        <div>
+          <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Student (Ward)</div>
+          <div id="parent-ward-name" style="font-weight: 700; font-size: 15px; color: var(--text-primary);">-</div>
+          <div id="parent-ward-info" style="font-size: 12px; color: var(--text-secondary);">-</div>
+        </div>
+        <div>
+          <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Registered Guardian</div>
+          <div id="parent-guardian-name" style="font-weight: 700; font-size: 15px; color: var(--text-primary);">-</div>
+          <div id="parent-guardian-phone" style="font-size: 12px; color: var(--text-secondary);">-</div>
+        </div>
+      </div>
+
+      <!-- Leave Specifics -->
+      <table class="table" style="border: none; margin-bottom: 16px;">
+        <tr>
+          <td style="color: var(--text-muted); width: 140px; border: none; padding: 6px 0;">Leave Category:</td>
+          <td style="font-weight: 600; border: none; padding: 6px 0;" id="parent-leave-type">-</td>
+        </tr>
+        <tr>
+          <td style="color: var(--text-muted); border: none; padding: 6px 0;">Period / Dates:</td>
+          <td style="font-weight: 600; border: none; padding: 6px 0;" id="parent-leave-dates">-</td>
+        </tr>
+        <tr>
+          <td style="color: var(--text-muted); border: none; padding: 6px 0;">Total Days:</td>
+          <td style="font-weight: 600; border: none; padding: 6px 0;" id="parent-leave-days">-</td>
+        </tr>
+      </table>
+
+      <!-- Reason Stated by Student -->
+      <div style="margin-bottom: 20px;">
+        <label class="form-label">Ward's Stated Reason for Leave:</label>
+        <div id="parent-leave-reason" style="padding: 12px; background-color: #f7fafc; border-left: 4px solid var(--accent-blue); font-size: 14px; border-radius: 0 var(--radius-md) var(--radius-md) 0;">
+          -
+        </div>
+      </div>
+
+      <!-- Acknowledged Record if already completed -->
+      <div id="already-acknowledged-box" class="alert alert-success" style="display: none;">
+        <div>
+          <strong>✓ Parent Verification Completed:</strong> This leave request was acknowledged by the registered parent. It has been routed to the Faculty Class Advisor for final evaluation.
+        </div>
+      </div>
+
+      <!-- OTP Verification and Acknowledgement Form (If Pending) -->
+      <div id="otp-section" style="background-color: var(--bg-card); border: 2px dashed var(--border-focus); padding: 18px; border-radius: var(--radius-md); margin-top: 16px;">
+        <div style="font-weight: 700; color: var(--primary); font-size: 15px; margin-bottom: 6px;">
+          📲 Mobile Verification & Digital Acknowledgement
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px;">
+          To ensure student safety, a 6-digit One-Time Password (OTP) must be entered to verify parent identity.
+        </p>
+
+        <div style="margin-bottom: 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <button type="button" id="send-otp-btn" class="btn btn-secondary" onclick="ParentPortal.requestOtp()">
+            Dispatch OTP to Registered Mobile
+          </button>
+          <span id="otp-demo-hint" style="font-size: 12px; color: var(--text-muted);">Demo code: <strong>123456</strong></span>
+        </div>
+
+        <div class="form-group" style="max-width: 320px;">
+          <label class="form-label required" for="parent-otp-input">Enter 6-Digit OTP</label>
+          <input 
+            type="text" 
+            id="parent-otp-input" 
+            class="form-control" 
+            placeholder="e.g. 123456" 
+            maxlength="6"
+            style="letter-spacing: 4px; font-size: 18px; font-weight: 700;"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="parent-remark-input">Optional Parent Remarks / Instructions to College</label>
+          <input 
+            type="text" 
+            id="parent-remark-input" 
+            class="form-control" 
+            placeholder="e.g., Confirmed with Aarav. He is travelling home for sister wedding."
+          >
+        </div>
+
+        <div style="margin-top: 18px;">
+          <button type="button" id="acknowledge-btn" class="btn btn-success" style="padding: 10px 24px; font-weight: 700;" onclick="ParentPortal.submitAcknowledgement()">
+            ✓ Acknowledge & Forward to Class Advisor
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script src="js/api.js"></script>
+  <script>
+    const ParentPortal = {
+      currentLeave: null,
+
+      init() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const reqId = urlParams.get('id');
+        if (reqId) {
+          document.getElementById('lookup-request-id').value = reqId;
+          this.fetchLeaveDetails(reqId);
+        }
+      },
+
+      loadQuickDemo(id) {
+        document.getElementById('lookup-request-id').value = id;
+        this.fetchLeaveDetails(id);
+      },
+
+      handleLookup() {
+        const id = document.getElementById('lookup-request-id').value.trim();
+        if (!id) {
+          alert('Please enter a Leave Request ID.');
+          return;
+        }
+        this.fetchLeaveDetails(id);
+      },
+
+      async fetchLeaveDetails(id) {
+        const msgBox = document.getElementById('parent-msg-box');
+        const card = document.getElementById('parent-details-card');
+
+        try {
+          const res = await CollegeAPI.getParentLeave(id);
+          if (!res.success || !res.data) {
+            msgBox.className = 'alert alert-danger';
+            msgBox.innerText = res.message || 'Leave request not found.';
+            msgBox.style.display = 'block';
+            card.style.display = 'none';
+            return;
+          }
+
+          msgBox.style.display = 'none';
+          this.currentLeave = res.data;
+          this.renderLeave(res.data);
+          card.style.display = 'block';
+        } catch (err) {
+          msgBox.className = 'alert alert-danger';
+          msgBox.innerText = `Error: ${err.message}`;
+          msgBox.style.display = 'block';
+        }
+      },
+
+      renderLeave(data) {
+        document.getElementById('parent-req-id').innerText = data.requestId;
+        document.getElementById('parent-ward-name').innerText = data.studentName;
+        document.getElementById('parent-ward-info').innerText = `${data.department} • Roll No: ${data.studentId} (Yr ${data.year}-${data.section})`;
+        document.getElementById('parent-guardian-name').innerText = data.parentName || 'Registered Parent';
+        document.getElementById('parent-guardian-phone').innerText = `Mobile: ${data.parentPhoneMasked}`;
+
+        document.getElementById('parent-leave-type').innerText = data.leaveType;
+        document.getElementById('parent-leave-dates').innerText = `${data.startDate} to ${data.endDate}`;
+        document.getElementById('parent-leave-days').innerText = `${data.totalDays} Day(s)`;
+        document.getElementById('parent-leave-reason').innerText = data.reason;
+
+        const badgeElem = document.getElementById('parent-status-badge');
+        const ackBox = document.getElementById('already-acknowledged-box');
+        const otpSec = document.getElementById('otp-section');
+
+        if (data.parentStatus === 'Acknowledged') {
+          badgeElem.innerHTML = `<span class="badge badge-parent-ack" style="font-size: 13px;">✓ Acknowledged</span>`;
+          ackBox.style.display = 'block';
+          otpSec.style.display = 'none';
+        } else {
+          badgeElem.innerHTML = `<span class="badge badge-parent-wait" style="font-size: 13px;">Waiting for Parent</span>`;
+          ackBox.style.display = 'none';
+          otpSec.style.display = 'block';
+        }
+      },
+
+      async requestOtp() {
+        if (!this.currentLeave) return;
+        const res = await CollegeAPI.sendParentOtp(this.currentLeave.requestId);
+        if (res.success) {
+          alert(`[SMS DISPATCHED]\nVerification OTP sent to registered parent mobile (${this.currentLeave.parentPhoneMasked}).\nDemo OTP: 123456`);
+          document.getElementById('parent-otp-input').value = '123456';
+        } else {
+          alert(res.message || 'Failed to send OTP.');
+        }
+      },
+
+      async submitAcknowledgement() {
+        if (!this.currentLeave) return;
+        const otp = document.getElementById('parent-otp-input').value.trim();
+        const remark = document.getElementById('parent-remark-input').value.trim();
+
+        if (!otp) {
+          alert('Please enter the 6-digit OTP sent to your phone (Demo: 123456).');
+          return;
+        }
+
+        const btn = document.getElementById('acknowledge-btn');
+        btn.disabled = true;
+        btn.innerText = 'Verifying & Recording...';
+
+        try {
+          const res = await CollegeAPI.acknowledgeLeave(this.currentLeave.requestId, otp, remark);
+          if (res.success) {
+            alert(`[VERIFICATION COMPLETE]\nLeave request ${this.currentLeave.requestId} successfully acknowledged!\n\nFaculty Class Advisor has been notified to evaluate the request.`);
+            await this.fetchLeaveDetails(this.currentLeave.requestId);
+          } else {
+            alert(`Verification failed: ${res.message}`);
+          }
+        } catch (err) {
+          alert(`Error: ${err.message}`);
+        } finally {
+          btn.disabled = false;
+          btn.innerText = '✓ Acknowledge & Forward to Class Advisor';
+        }
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      ParentPortal.init();
+    });
+  </script>
+</body>
+</html>

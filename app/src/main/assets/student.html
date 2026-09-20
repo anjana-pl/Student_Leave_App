@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard - Leave Management System</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Institutional Header -->
+  <header class="header-bar">
+    <div class="header-container">
+      <div class="brand-section">
+        <div class="college-logo-badge">👨‍🎓</div>
+        <div>
+          <div class="brand-title">Student Portal • Leave Desk</div>
+          <div class="brand-subtitle">Academic Leave Request & History Management</div>
+        </div>
+      </div>
+      <div class="header-actions" id="header-user-info">
+        <!-- Injected via Auth.js -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Demo Role Switcher -->
+  <div class="demo-role-banner">
+    <div><strong>Demo Testing Bar:</strong> Switch user views</div>
+    <div class="role-buttons">
+      <a href="apply-leave.html" class="btn-demo" style="background-color: #3182ce; text-decoration: none;">➕ Apply Leave Form</a>
+      <a href="parent.html?id=LR1024" class="btn-demo" style="text-decoration: none;">👨‍👩‍👧 Parent OTP Portal</a>
+      <button class="btn-demo" onclick="Auth.quickLogin('faculty')">👨‍🏫 Switch to Faculty View</button>
+      <button class="btn-demo" onclick="Auth.quickLogin('admin')">🏛️ Switch to Admin View</button>
+    </div>
+  </div>
+
+  <main class="main-container">
+    
+    <!-- Student Profile & Action Banner -->
+    <div class="card" style="background: linear-gradient(135deg, #ffffff 0%, var(--primary-light) 100%);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h2 id="student-name" style="font-size: 20px; color: var(--primary); font-weight: 700;">Loading student...</h2>
+          <div id="student-info" style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">Loading registration...</div>
+          <div id="student-rule-notice" style="font-size: 12px; color: var(--accent-blue); margin-top: 8px;">
+            Normal leave must be submitted at least 12 hours in advance.
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <a href="notifications.html" class="btn btn-secondary" style="position: relative;">
+            🔔 Notifications
+            <span id="nav-notif-count" class="badge badge-rejected" style="display: none; margin-left: 4px;">0</span>
+          </a>
+          <a href="apply-leave.html" class="btn btn-primary" style="font-weight: 700; box-shadow: var(--shadow-sm);">
+            ➕ Apply Leave
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistics Overview Grid -->
+    <div class="stats-grid">
+      <div class="stat-box approved">
+        <div class="stat-label">Total Approved Days</div>
+        <div class="stat-value" id="stat-approved-days">0</div>
+        <div class="stat-helper">Days sanctioned this semester</div>
+      </div>
+
+      <div class="stat-box pending">
+        <div class="stat-label">Pending Requests</div>
+        <div class="stat-value" id="stat-pending">0</div>
+        <div class="stat-helper">Under evaluation</div>
+      </div>
+
+      <div class="stat-box parent-wait">
+        <div class="stat-label">Parent Pending</div>
+        <div class="stat-value" id="stat-parent-pending">0</div>
+        <div class="stat-helper">Awaiting parent OTP confirmation</div>
+      </div>
+
+      <div class="stat-box approved">
+        <div class="stat-label">Approved</div>
+        <div class="stat-value" id="stat-approved">0</div>
+        <div class="stat-helper">Approved by faculty</div>
+      </div>
+
+      <div class="stat-box rejected">
+        <div class="stat-label">Rejected</div>
+        <div class="stat-value" id="stat-rejected">0</div>
+        <div class="stat-helper">Declined with remarks</div>
+      </div>
+    </div>
+
+    <!-- Hackathon Innovation Security Validation Test Cases -->
+    <div class="card" style="border-left: 4px solid var(--accent-blue); background-color: #f0f4f8;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <strong style="color: var(--primary);">🔬 Live Security & Rule Validation Demonstrations:</strong>
+          <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+            Verify genuine server-side checks for identity tampering and advance deadline rules.
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn btn-sm btn-outline" onclick="StudentDashboard.demoSecurityCase1()" title="Test ID spoofing rejection">
+            Test CASE 1: ID Spoofing Attempt
+          </button>
+          <button class="btn btn-sm btn-outline" onclick="StudentDashboard.demoSecurityCase2()" title="Test deadline rejection">
+            Test CASE 2: Deadline Violation Attempt
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Leave Requests Table -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📄 My Leave Requests & Approval History</div>
+        <a href="apply-leave.html" class="btn btn-sm btn-primary">New Application</a>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Request ID</th>
+              <th>Leave Type</th>
+              <th>Duration Dates</th>
+              <th>Total Days</th>
+              <th>Parent Status</th>
+              <th>Faculty Decision</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="recent-leaves-tbody">
+            <!-- Populated via student.js -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/student.js"></script>
+  <script src="js/notifications.js"></script>
+</body>
+</html>
